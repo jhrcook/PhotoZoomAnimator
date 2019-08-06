@@ -121,6 +121,7 @@ extension PagingCollectionViewCell: UIScrollViewDelegate {
         return imageView
     }
     
+    
     func setZoomScale() {
         let imageViewSize = imageView.bounds.size
         let scrollViewSize = scrollView.bounds.size
