@@ -1,0 +1,6 @@
+framework module Pods_PhotoZoomAnimator {
+  umbrella header "Pods-PhotoZoomAnimator-umbrella.h"
+
+  export *
+  module * { export * }
+}

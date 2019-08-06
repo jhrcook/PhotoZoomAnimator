@@ -1,0 +1,427 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		143B6726DB431CD697BB2CA5 /* Pods_PhotoZoomAnimator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65AA9E10B76F6F0B40CEBA9F /* Pods_PhotoZoomAnimator.framework */; };
+		84DE471222FA29330086A8F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE471122FA29330086A8F4 /* AppDelegate.swift */; };
+		84DE471722FA29330086A8F4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84DE471522FA29330086A8F4 /* Main.storyboard */; };
+		84DE471922FA29350086A8F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84DE471822FA29350086A8F4 /* Assets.xcassets */; };
+		84DE471C22FA29350086A8F4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84DE471A22FA29350086A8F4 /* LaunchScreen.storyboard */; };
+		84DE472422FA2A8E0086A8F4 /* BaseCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472322FA2A8E0086A8F4 /* BaseCollectionViewController.swift */; };
+		84DE472622FA2AA00086A8F4 /* BaseCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472522FA2AA00086A8F4 /* BaseCollectionViewCell.swift */; };
+		84DE472822FA2AB10086A8F4 /* PagingCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472722FA2AB10086A8F4 /* PagingCollectionViewController.swift */; };
+		84DE472A22FA2AC30086A8F4 /* PagingCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472922FA2AC30086A8F4 /* PagingCollectionViewCell.swift */; };
+		84DE472C22FA30220086A8F4 /* utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472B22FA30220086A8F4 /* utilities.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5230A757D600879E9BD7CAE6 /* Pods-PhotoZoomAnimator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhotoZoomAnimator.debug.xcconfig"; path = "Target Support Files/Pods-PhotoZoomAnimator/Pods-PhotoZoomAnimator.debug.xcconfig"; sourceTree = "<group>"; };
+		65AA9E10B76F6F0B40CEBA9F /* Pods_PhotoZoomAnimator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PhotoZoomAnimator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E9802015FF10B4D6A335212 /* Pods-PhotoZoomAnimator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhotoZoomAnimator.release.xcconfig"; path = "Target Support Files/Pods-PhotoZoomAnimator/Pods-PhotoZoomAnimator.release.xcconfig"; sourceTree = "<group>"; };
+		84DE470E22FA29330086A8F4 /* PhotoZoomAnimator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoZoomAnimator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		84DE471122FA29330086A8F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		84DE471622FA29330086A8F4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		84DE471822FA29350086A8F4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		84DE471B22FA29350086A8F4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		84DE471D22FA29350086A8F4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		84DE472322FA2A8E0086A8F4 /* BaseCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionViewController.swift; sourceTree = "<group>"; };
+		84DE472522FA2AA00086A8F4 /* BaseCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionViewCell.swift; sourceTree = "<group>"; };
+		84DE472722FA2AB10086A8F4 /* PagingCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingCollectionViewController.swift; sourceTree = "<group>"; };
+		84DE472922FA2AC30086A8F4 /* PagingCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingCollectionViewCell.swift; sourceTree = "<group>"; };
+		84DE472B22FA30220086A8F4 /* utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utilities.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		84DE470B22FA29330086A8F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				143B6726DB431CD697BB2CA5 /* Pods_PhotoZoomAnimator.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		392411D8D81FD612D323B4D4 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				5230A757D600879E9BD7CAE6 /* Pods-PhotoZoomAnimator.debug.xcconfig */,
+				6E9802015FF10B4D6A335212 /* Pods-PhotoZoomAnimator.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		6FCE71A4331D15050FDA2FC3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				65AA9E10B76F6F0B40CEBA9F /* Pods_PhotoZoomAnimator.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		84DE470522FA29330086A8F4 = {
+			isa = PBXGroup;
+			children = (
+				84DE471022FA29330086A8F4 /* PhotoZoomAnimator */,
+				84DE470F22FA29330086A8F4 /* Products */,
+				392411D8D81FD612D323B4D4 /* Pods */,
+				6FCE71A4331D15050FDA2FC3 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		84DE470F22FA29330086A8F4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				84DE470E22FA29330086A8F4 /* PhotoZoomAnimator.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		84DE471022FA29330086A8F4 /* PhotoZoomAnimator */ = {
+			isa = PBXGroup;
+			children = (
+				84DE471122FA29330086A8F4 /* AppDelegate.swift */,
+				84DE471522FA29330086A8F4 /* Main.storyboard */,
+				84DE472322FA2A8E0086A8F4 /* BaseCollectionViewController.swift */,
+				84DE472522FA2AA00086A8F4 /* BaseCollectionViewCell.swift */,
+				84DE472722FA2AB10086A8F4 /* PagingCollectionViewController.swift */,
+				84DE472922FA2AC30086A8F4 /* PagingCollectionViewCell.swift */,
+				84DE472B22FA30220086A8F4 /* utilities.swift */,
+				84DE471822FA29350086A8F4 /* Assets.xcassets */,
+				84DE471A22FA29350086A8F4 /* LaunchScreen.storyboard */,
+				84DE471D22FA29350086A8F4 /* Info.plist */,
+			);
+			path = PhotoZoomAnimator;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		84DE470D22FA29330086A8F4 /* PhotoZoomAnimator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 84DE472022FA29350086A8F4 /* Build configuration list for PBXNativeTarget "PhotoZoomAnimator" */;
+			buildPhases = (
+				7C11634B7A2215C371AD060C /* [CP] Check Pods Manifest.lock */,
+				84DE470A22FA29330086A8F4 /* Sources */,
+				84DE470B22FA29330086A8F4 /* Frameworks */,
+				84DE470C22FA29330086A8F4 /* Resources */,
+				E9D2E79B7EE52DB3A69F60D4 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PhotoZoomAnimator;
+			productName = PhotoZoomAnimator;
+			productReference = 84DE470E22FA29330086A8F4 /* PhotoZoomAnimator.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		84DE470622FA29330086A8F4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1030;
+				LastUpgradeCheck = 1030;
+				ORGANIZATIONNAME = "JHC Dev";
+				TargetAttributes = {
+					84DE470D22FA29330086A8F4 = {
+						CreatedOnToolsVersion = 10.3;
+					};
+				};
+			};
+			buildConfigurationList = 84DE470922FA29330086A8F4 /* Build configuration list for PBXProject "PhotoZoomAnimator" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 84DE470522FA29330086A8F4;
+			productRefGroup = 84DE470F22FA29330086A8F4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				84DE470D22FA29330086A8F4 /* PhotoZoomAnimator */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		84DE470C22FA29330086A8F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84DE471C22FA29350086A8F4 /* LaunchScreen.storyboard in Resources */,
+				84DE471922FA29350086A8F4 /* Assets.xcassets in Resources */,
+				84DE471722FA29330086A8F4 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7C11634B7A2215C371AD060C /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PhotoZoomAnimator-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E9D2E79B7EE52DB3A69F60D4 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PhotoZoomAnimator/Pods-PhotoZoomAnimator-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PhotoZoomAnimator/Pods-PhotoZoomAnimator-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PhotoZoomAnimator/Pods-PhotoZoomAnimator-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		84DE470A22FA29330086A8F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				84DE472C22FA30220086A8F4 /* utilities.swift in Sources */,
+				84DE472822FA2AB10086A8F4 /* PagingCollectionViewController.swift in Sources */,
+				84DE471222FA29330086A8F4 /* AppDelegate.swift in Sources */,
+				84DE472422FA2A8E0086A8F4 /* BaseCollectionViewController.swift in Sources */,
+				84DE472A22FA2AC30086A8F4 /* PagingCollectionViewCell.swift in Sources */,
+				84DE472622FA2AA00086A8F4 /* BaseCollectionViewCell.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		84DE471522FA29330086A8F4 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				84DE471622FA29330086A8F4 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		84DE471A22FA29350086A8F4 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				84DE471B22FA29350086A8F4 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		84DE471E22FA29350086A8F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		84DE471F22FA29350086A8F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		84DE472122FA29350086A8F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5230A757D600879E9BD7CAE6 /* Pods-PhotoZoomAnimator.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CRMHYJ9F9F;
+				INFOPLIST_FILE = PhotoZoomAnimator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.joshdoesathing.PhotoZoomAnimator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		84DE472222FA29350086A8F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6E9802015FF10B4D6A335212 /* Pods-PhotoZoomAnimator.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CRMHYJ9F9F;
+				INFOPLIST_FILE = PhotoZoomAnimator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.joshdoesathing.PhotoZoomAnimator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		84DE470922FA29330086A8F4 /* Build configuration list for PBXProject "PhotoZoomAnimator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84DE471E22FA29350086A8F4 /* Debug */,
+				84DE471F22FA29350086A8F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		84DE472022FA29350086A8F4 /* Build configuration list for PBXNativeTarget "PhotoZoomAnimator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				84DE472122FA29350086A8F4 /* Debug */,
+				84DE472222FA29350086A8F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 84DE470622FA29330086A8F4 /* Project object */;
+}
