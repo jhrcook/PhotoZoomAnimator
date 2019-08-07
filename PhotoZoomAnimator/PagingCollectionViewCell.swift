@@ -46,13 +46,13 @@ class PagingCollectionViewCell: UICollectionViewCell {
     
     func setupScrollView() {
         scrollView = UIScrollView()
-        scrollView.frame = frame
+        scrollView.frame = contentView.frame
         scrollView.delegate = self
         scrollView.showsVerticalScrollIndicator = false
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceVertical = false
         scrollView.alwaysBounceHorizontal = false
-        scrollView.contentInsetAdjustmentBehavior = .never
+//        scrollView.contentInsetAdjustmentBehavior = .never
         contentView.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in make.edges.equalTo(contentView) }
     }

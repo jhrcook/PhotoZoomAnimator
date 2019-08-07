@@ -17,9 +17,9 @@ class PagingCollectionViewController: UICollectionViewController {
     
     var currentIndex = 0
     
-    var transitionController = ZoomTransitionController()
+    var hideCellImageViews = false
     
-    var rogueCell: PagingCollectionViewCell?
+    var transitionController = ZoomTransitionController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,8 +33,6 @@ class PagingCollectionViewController: UICollectionViewController {
         // Do any additional setup after loading the view.
         setupCollectionView()
         currentIndex = startingIndex
-        
-        collectionView.reloadData()
         
         print("paging view controller did load")
     }
@@ -69,9 +67,10 @@ class PagingCollectionViewController: UICollectionViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PagingCollectionViewCell
     
         print("making cell \(indexPath.item) for paging view collection")
-        
         cell.image = images[indexPath.item]
-    
+        
+        cell.imageView.isHidden = hideCellImageViews
+        
         return cell
     }
     
@@ -106,16 +105,25 @@ extension PagingCollectionViewController: UICollectionViewDelegateFlowLayout {
 extension PagingCollectionViewController: ZoomAnimatorDelegate {
     func transitionWillStartWith(zoomAnimator: ZoomAnimator) {
         // add code here to be run just before the transition animation
+        
+        // UPDATE //
+        hideCellImageViews = true
     }
     
     func transitionDidEndWith(zoomAnimator: ZoomAnimator) {
         // add code here to be run just after the transition animation
-        rogueCell = nil
+        
+        // UPDATE //
+        hideCellImageViews = false
+        collectionView.reloadItems(at: [IndexPath(item: currentIndex, section: 0)])
     }
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-        print("current index of paging view controller \(currentIndex)")        
-        return UIImageView(image: images[currentIndex])
+        // UPDATE //
+        if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
+            return cell.imageView
+        }
+        return nil
     }
     
     func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {

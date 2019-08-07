@@ -40,11 +40,11 @@ class ZoomAnimator: NSObject {
         
         // get view controllers and image views
         guard
-            let toVC = transitionContext.viewController(forKey: .to),
             let fromVC = transitionContext.viewController(forKey: .from),
-            let fromReferenceImageView = self.fromDelegate?.referenceImageView(for: self),  // source image view
-            let toReferenceImageView = self.toDelegate?.referenceImageView(for: self),      // destination image view
-            let fromReferenceImageViewFrame = self.fromDelegate?.referenceImageViewFrameInTransitioningView(for: self)
+            let fromReferenceImageView = self.fromDelegate?.referenceImageView(for: self),
+            let fromReferenceImageViewFrame = self.fromDelegate?.referenceImageViewFrameInTransitioningView(for: self),
+            let toVC = transitionContext.viewController(forKey: .to),
+            let toView = transitionContext.view(forKey: .to)
             else {
                 return
         }
@@ -55,9 +55,11 @@ class ZoomAnimator: NSObject {
         
         // STEP 1 //
         // start the destination as transparent and hidden
-        toVC.view.alpha = 0
-        toReferenceImageView.isHidden = true
-        containerView.addSubview(toVC.view)  // add to transition container view
+        let toSnapshot = toVC.view.snapshotView(afterScreenUpdates: true)!
+        toSnapshot.alpha = 0.0
+        toVC.view.alpha = 0.0
+        containerView.addSubview(toVC.view)
+        containerView.addSubview(toSnapshot)
         
         // STEP 2
         let referenceImage = fromReferenceImageView.image!
@@ -75,8 +77,9 @@ class ZoomAnimator: NSObject {
         // hide the source image view
         fromReferenceImageView.isHidden = true
         
+        
         // STEP 4 //
-        let finalTransitionSize = calculateZoomInImageFrame(image: referenceImage, forView: toVC.view)
+        let finalTransitionSize = calculateZoomInImageFrame(image: referenceImage, forView: toView)
         
         // STEP 5 //
         // animation
@@ -87,15 +90,16 @@ class ZoomAnimator: NSObject {
             initialSpringVelocity: 0,
             options: [.transitionCrossDissolve],
             animations: {
-                toVC.view.alpha = 1.0                                  // animate transparency of destination view in
+                toSnapshot.alpha = 1.0
+                toVC.view.alpha = 1.0
                 self.transitionImageView?.frame = finalTransitionSize  // animate size of image view
                 fromVC.tabBarController?.tabBar.alpha = 0              // animate transparency of tab bar out
         },
             completion: { _ in
                 // remove transition image view and show both view controllers, again
                 self.transitionImageView?.removeFromSuperview()
-                self.transitionImageView = nil
-                toReferenceImageView.isHidden = false
+                toSnapshot.removeFromSuperview()
+                
                 fromReferenceImageView.isHidden = false
                 
                 // end the transition (unless was cancelled)
@@ -215,6 +219,4 @@ extension ZoomAnimator: UIViewControllerAnimatedTransitioning {
             animateZoomOutTransition(using: transitionContext)
         }
     }
-    
-    
 }

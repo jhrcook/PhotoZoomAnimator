@@ -113,8 +113,9 @@ extension BaseCollectionViewController: ZoomAnimatorDelegate {
     }
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-        if let indexPath = collectionView.indexPathsForSelectedItems?.first {
-            return UIImageView(image: images[indexPath.item])
+        // UPDATED //
+        if let indexPath = collectionView.indexPathsForSelectedItems?.first, let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
+            return cell.imageView
         }
         return nil
     }
