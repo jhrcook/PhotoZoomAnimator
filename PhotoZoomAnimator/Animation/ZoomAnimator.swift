@@ -10,9 +10,15 @@ import UIKit
 
 
 protocol ZoomAnimatorDelegate: class {
+    // these two methods are run just before and just after the animation
+    // they are here as helper functions and do not need to do anything
     func transitionWillStartWith(zoomAnimator: ZoomAnimator)
     func transitionDidEndWith(zoomAnimator: ZoomAnimator)
+    
+    // return the image view that is being zoomed from or to
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView?
+    
+    // the frame of the image view in the transitioning view
     func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect?
 }
 
@@ -43,7 +49,7 @@ class ZoomAnimator: NSObject {
                 return
         }
         
-        //
+        // these are optional functions in the delegates that get called before the animation runs
         self.fromDelegate?.transitionWillStartWith(zoomAnimator: self)
         self.toDelegate?.transitionWillStartWith(zoomAnimator: self)
         
@@ -72,6 +78,7 @@ class ZoomAnimator: NSObject {
         // STEP 4 //
         let finalTransitionSize = calculateZoomInImageFrame(image: referenceImage, forView: toVC.view)
         
+        // STEP 5 //
         // animation
         UIView.animate(
             withDuration: transitionDuration(using: transitionContext),
@@ -93,6 +100,8 @@ class ZoomAnimator: NSObject {
                 
                 // end the transition (unless was cancelled)
                 transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                
+                // these are optional functions in the delegates that get called after the animation runs
                 self.toDelegate?.transitionDidEndWith(zoomAnimator: self)
                 self.fromDelegate?.transitionDidEndWith(zoomAnimator: self)
         })
@@ -101,7 +110,71 @@ class ZoomAnimator: NSObject {
     
     
     fileprivate func animateZoomOutTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        // TODO
+        
+        // container view of the animation
+        let containerView = transitionContext.containerView
+        
+        // get view controllers and image views
+        guard
+            let toVC = transitionContext.viewController(forKey: .to),
+            let fromVC = transitionContext.viewController(forKey: .from),
+            let fromReferenceImageView = self.fromDelegate?.referenceImageView(for: self),
+            let toReferenceImageView = self.toDelegate?.referenceImageView(for: self),
+            let fromReferenceImageViewFrame = self.fromDelegate?.referenceImageViewFrameInTransitioningView(for: self),
+            let toReferenceImageViewFrame = self.toDelegate?.referenceImageViewFrameInTransitioningView(for: self)
+            else {
+                return
+        }
+        
+        // these are optional functions in the delegates that get called before the animation runs
+        self.fromDelegate?.transitionWillStartWith(zoomAnimator: self)
+        self.toDelegate?.transitionWillStartWith(zoomAnimator: self)
+        
+        // STEP 1 //
+        // hide the source image view
+        toReferenceImageView.isHidden = true
+        
+        // STEP 2 //
+        let referenceImage = fromReferenceImageView.image!
+        if self.transitionImageView == nil {
+            let transitionImageView = UIImageView(image: referenceImage)
+            transitionImageView.contentMode = .scaleAspectFill
+            transitionImageView.clipsToBounds = true
+            transitionImageView.frame = fromReferenceImageViewFrame
+            
+            self.transitionImageView = transitionImageView
+            containerView.addSubview(transitionImageView)
+        }
+        
+        // STEP 3 //
+        containerView.insertSubview(toVC.view, belowSubview: fromVC.view)
+        fromReferenceImageView.isHidden = true
+        
+        // STEP 4 //
+        let finalTransitionSize = toReferenceImageViewFrame
+        
+        // STEP 5 //
+        UIView.animate(
+            withDuration: transitionDuration(using: transitionContext),
+            delay: 0,
+            options: [],
+            animations: {
+                fromVC.view.alpha = 0                                  // animate transparency of source view out
+                self.transitionImageView?.frame = finalTransitionSize  // animate size of image view
+                toVC.tabBarController?.tabBar.alpha = 1                // animate transparency of tab bar in
+        },
+            completion: { _ in
+                self.transitionImageView?.removeFromSuperview()
+                self.transitionImageView = nil
+                toReferenceImageView.isHidden = false
+                fromReferenceImageView.isHidden = false
+                
+                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                
+                // these are optional functions in the delegates that get called after the animation runs
+                self.toDelegate?.transitionDidEndWith(zoomAnimator: self)
+                self.fromDelegate?.transitionDidEndWith(zoomAnimator: self)
+        })
     }
     
     

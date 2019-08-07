@@ -23,7 +23,7 @@ This [GitHub repository](https://github.com/masamichiueta/FluidPhoto) (and my [f
 
 Below, I provide an overview of how the app's framework was created originally. The rest of the app will build (and experiment) from here.
 
-There are two `UICollectionViewControllers`{:.swift}, `BaseCollectionViewController` and `PagingCollectionViewController`:
+There are two `UICollectionViewControllers`, `BaseCollectionViewController` and `PagingCollectionViewController`:
 
 * `BaseCollectionViewController` has cells of class `BaseCollectionViewCell` which simply hold a single `UIImageView` [snapped](http://snapkit.io) to the edges of the cell's `contentView`.
 * `PagingCollectionViewController` is a bit more complicated. It holds cells of class `PagingCollectionViewCell` which contain a `UIScrollView` which, in turn, holds a `UIImageView`. The scroll view handles zooming and panning around the image. The collection view is pretty standard save for scrolling horizontally (set using the IB) and each cell is the same size as the `view`
@@ -69,7 +69,7 @@ The `ZoomAnimator` class has four properties:
 
 The first step in creating this animator is to have it conform to `UIViewControllerAnimatedTransitioning`. This requires two methods, `transitionDuration(using:)` and `animateTransition(using:)`. The first returns the length (in seconds) of the animation. The second method returns a `UIViewControllerContextTransitioning` object that handles the animation. There are two animation functions, one for zooming in and the other for zooming out; the first is run if `isPresenting`, otherwise the latter is run.
 
-Below is the code, followed by the explanation, for the **zoom in** animation logic.
+Below is the code, followed by the explanation, for the **zoom in** animation logic. The zoom out logic is very simillar (i.e. almost identical), so I will not cover it in-depth here.
 
 ```swift
 fileprivate func animateZoomInTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -88,31 +88,36 @@ fileprivate func animateZoomInTransition(using transitionContext: UIViewControll
                 return
         }
         
-        // these functions are run and can optionally do some process before the animation begins
+        // these are optional functions in the delegates that get called before the animation runs
         self.fromDelegate?.transitionWillStartWith(zoomAnimator: self)
         self.toDelegate?.transitionWillStartWith(zoomAnimator: self)
         
+        // STEP 1 //
         // start the destination as transparent and hidden
         toVC.view.alpha = 0
         toReferenceImageView.isHidden = true
         containerView.addSubview(toVC.view)  // add to transition container view
         
+        // STEP 2
         let referenceImage = fromReferenceImageView.image!
-        
         if self.transitionImageView == nil {
             let transitionImageView = UIImageView(image: referenceImage)
             transitionImageView.contentMode = .scaleAspectFill
             transitionImageView.clipsToBounds = true
             transitionImageView.frame = fromReferenceImageViewFrame
+            
             self.transitionImageView = transitionImageView
             containerView.addSubview(transitionImageView)
         }
         
+        // STEP 3
         // hide the source image view
         fromReferenceImageView.isHidden = true
         
+        // STEP 4 //
         let finalTransitionSize = calculateZoomInImageFrame(image: referenceImage, forView: toVC.view)
         
+        // STEP 5 //
         // animation
         UIView.animate(
             withDuration: transitionDuration(using: transitionContext),
@@ -126,20 +131,26 @@ fileprivate func animateZoomInTransition(using transitionContext: UIViewControll
                 fromVC.tabBarController?.tabBar.alpha = 0              // animate transparency of tab bar out
         },
             completion: { _ in
-                 // remove transition image view and show both view controllers, again
-                 self.transitionImageView?.removeFromSuperview()
-                 self.transitionImageView = nil
-                 toReferenceImageView.isHidden = false
-                 fromReferenceImageView.isHidden = false
-                        
-                 // end the transition (unless was cancelled)
-                 transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-                 self.toDelegate?.transitionDidEndWith(zoomAnimator: self)
-                 self.fromDelegate?.transitionDidEndWith(zoomAnimator: self)
+                // remove transition image view and show both view controllers, again
+                self.transitionImageView?.removeFromSuperview()
+                self.transitionImageView = nil
+                toReferenceImageView.isHidden = false
+                fromReferenceImageView.isHidden = false
+                
+                // end the transition (unless was cancelled)
+                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                
+                // these are optional functions in the delegates that get called after the animation runs
+                self.toDelegate?.transitionDidEndWith(zoomAnimator: self)
+                self.fromDelegate?.transitionDidEndWith(zoomAnimator: self)
         })
         
     }
 ```
+
+The preparation for the animation is to first gather the image view controllers and image views from the source and destination. Also, the source image view's frame in the transition view is requested.
+
+Before the animation runs, the `transitionWillStart(zoomAnimator:)` methods are run for both delegates. This is just a helper function and need not do anything.
 
 **Step 1: Hide the destination image view.**
 
@@ -161,9 +172,11 @@ The function `calculateZoomInImageFrame(image:forView:)` returns a `CGRect` with
 
 **Step 5: Animate the image zooming from the source frame to the destination frame.**
 
-## TODO
+The `UIView.animate()` method is passed vlalues for its appropriately-named arguments. For options, it is passed `UIView.AnimationOptions.transitionCrossDissolve` - this provides the "fading" animation. The `animations` closure changes the destination view controller transparency back to 1, scales the `transitionImageView` frame to the final size calculated in Step 4, and the source tab bar (if available) is made transparent.
 
+When the animation is complete, the transition image view is removed and made `nil` and the source and destination image views are shown (i.e. not hidden; only the destination view image will be visible, though, because the source is behind it). The final touch is to only complete the transition if it was not cancelled: `transitionContext.completeTransition(!transitionContext.transitionWasCancelled)`. Therefore, when a gesture is used to control the animation, if the gesture is undone (e.g. panning back to the original location), the transition will not continue.
 
+Once all of the transition stuff has been dealt with, the `transitionDidEndWith(zoomAnimator:)` methods for both the source and destination view controllers are run. These return `Void` so do not have to do anything.
 
 
 **The `calculateZoomInImageFrame(image:forView:)` function**
