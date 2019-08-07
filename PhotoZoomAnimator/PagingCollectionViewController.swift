@@ -114,23 +114,13 @@ extension PagingCollectionViewController: ZoomAnimatorDelegate {
     }
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-        print("current index of paging view controller \(currentIndex)")
-        print("there are \(collectionView.numberOfItems(inSection: 0)) items in section 0")
-        
-        rogueCell = PagingCollectionViewCell(frame: view.frame)
-        rogueCell?.imageView.image = images[currentIndex]
-        return rogueCell?.imageView
-        
-//        if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
-//            print("paging controller is sending image view")
-//            return cell.imageView
-//        }
-//        return nil
+        print("current index of paging view controller \(currentIndex)")        
+        return UIImageView(image: images[currentIndex])
     }
     
     func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
         if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
-            return view.convert(cell.imageView.frame, to: view)
+            return collectionView.convert(cell.imageView.frame, to: cell.scrollView)
         }
         return nil
     }

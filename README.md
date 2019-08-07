@@ -300,26 +300,24 @@ The last step is to have both `BaseCollectionViewController` and `PagingCollecti
 
 Nothing is to be done specifically right before or after the transition animation, so the `transitionWillStartWith(zoomAnimator:)` and `transitionDidEndWith(zoomAnimator:)` methods are left empty.
 
-The `referenceImageView(for:)` method needs to return the image view of the cell that was selected.
+The `referenceImageView(for:)` method needs to return an image view with the image of the selected cell image view.
 
 ```swift
 func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
 	if let indexPath = collectionView.indexPathsForSelectedItems?.first {
-		if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-			return cell.imageView
-		}
+		return UIImageView(image: images[indexPath.item])
 	}
 	return nil
 }
 ```
 
-The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the `UIView.convert(_:to:)` method is used on `view`.
+The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the frame of the selected *cell* needs to be converted to `view` with regards to the collection view.
 
 ```swift
 func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
 	if let indexPath = collectionView.indexPathsForSelectedItems?.first {
 		if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-			return view.convert(cell.imageView.frame, to: view)
+			return collectionView.convert(cell.frame, to: view)
 		}
 	}
 	return nil
@@ -331,14 +329,21 @@ func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) 
 
 Again, nothing is to be done specifically right before or after the transition animation, so the `transitionWillStartWith(zoomAnimator:)` and `transitionDidEndWith(zoomAnimator:)` methods are left empty.
 
-The `referenceImageView(for:)` method needs to return the image view of the cell that is currently shown. The index of the current cell is stored in `currentIndex`. This variable is set as `selectedIndex` upon initialization and then updated during scrolling of the collection view; therefore, it can be used for both presenting and dismissal.
+The `referenceImageView(for:)` method needs to return an image view containing the same image as will be shown in the cell provided by the collection view. The index of the current cell is stored in `currentIndex`. This variable is set as `selectedIndex` upon initialization and then updated during scrolling of the collection view; therefore, it can be used for both presenting and dismissal.
 
 ```swift
 func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-	if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
-		return cell.imageView
-	}
+	return UIImageView(image: images[currentIndex])
 }
 ```
 
-The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the `UIView.convert(_:to:)` method is used on `view`.
+The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the `UIView.convert(_:to:)` method is used on `collectionView`.
+
+```swift
+func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
+	if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
+		return collectionView.convert(cell.imageView.frame, to: cell.scrollView)
+	}
+	return nil
+}
+```

@@ -114,10 +114,7 @@ extension BaseCollectionViewController: ZoomAnimatorDelegate {
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
         if let indexPath = collectionView.indexPathsForSelectedItems?.first {
-            if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-                print("base controller is sending image view")
-                return cell.imageView
-            }
+            return UIImageView(image: images[indexPath.item])
         }
         return nil
     }
@@ -125,7 +122,7 @@ extension BaseCollectionViewController: ZoomAnimatorDelegate {
     func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
         if let indexPath = collectionView.indexPathsForSelectedItems?.first {
             if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-                return view.convert(cell.imageView.frame, to: view)
+                return collectionView.convert(cell.frame, to: view)
             }
         }
         return nil
