@@ -262,5 +262,83 @@ func navigationController(_ navigationController: UINavigationController, animat
 }
 ```
 
-## Setting up `BaseCollectionViewController` for animation
+## Setting up `BaseCollectionViewController` and `PagingCollectionViewController` for animation
 
+### Adding a transition controller
+
+A transition controller is added as a stored property to **`PagingCollectionViewController`**
+
+```swift
+class PagingCollectionViewController: UICollectionViewController {
+    var startingIndex: Int = 0
+    var images = [UIImage]()
+    var currentIndex = 0
+    
+    var transitionController = ZoomTransitionController()
+    
+    override func viewDidLoad() {
+    	...
+```
+
+### Setting delegates during segue
+
+The next change is in the `prepare(for:sender:)` method of `BaseCollectionViewController`. Currently, this type casts the destination view controller as `PagingCollectionViewController` then sets its `images` and `startingIndex` properties with the images and index of the selected cell in `BaseCollectionViewController`.
+
+The first addition is to set the navigation controller delegate of the *current* view controller to the `ZoomTransitionController` of the destination view controller.
+
+```swift
+self.navigationController?.delegate = destinationViewController.transitionController
+```
+
+Then the source and destination `ZoomAnimatorDelegate`s are set for the `ZoomTransitionController` of the destination view controller.
+
+### Conforming to the `ZoomAnimatorDelegate` protocol
+
+The last step is to have both `BaseCollectionViewController` and `PagingCollectionViewController` conform to `ZoomAnimatorDelegate`.
+
+#### `BaseCollectionViewController`
+
+Nothing is to be done specifically right before or after the transition animation, so the `transitionWillStartWith(zoomAnimator:)` and `transitionDidEndWith(zoomAnimator:)` methods are left empty.
+
+The `referenceImageView(for:)` method needs to return the image view of the cell that was selected.
+
+```swift
+func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
+	if let indexPath = collectionView.indexPathsForSelectedItems?.first {
+		if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
+			return cell.imageView
+		}
+	}
+	return nil
+}
+```
+
+The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the `UIView.convert(_:to:)` method is used on `view`.
+
+```swift
+func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
+	if let indexPath = collectionView.indexPathsForSelectedItems?.first {
+		if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
+			return view.convert(cell.imageView.frame, to: view)
+		}
+	}
+	return nil
+}
+    
+```
+
+#### `PagingCollectionViewController`
+
+Again, nothing is to be done specifically right before or after the transition animation, so the `transitionWillStartWith(zoomAnimator:)` and `transitionDidEndWith(zoomAnimator:)` methods are left empty.
+
+The `referenceImageView(for:)` method needs to return the image view of the cell that is currently shown. The index of the current cell is stored in `currentIndex`. This variable is set as `selectedIndex` upon initialization and then updated during scrolling of the collection view; therefore, it can be used for both presenting and dismissal.
+
+```swift
+func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
+	if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
+		return cell.imageView
+	}
+}
+```
+
+The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the `UIView.convert(_:to:)` method is used on `view`.

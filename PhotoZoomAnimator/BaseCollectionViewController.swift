@@ -18,8 +18,6 @@ class BaseCollectionViewController: UICollectionViewController {
     let numberOfImagesPerRow: CGFloat = 4.0
     let spacingBetweenCells: CGFloat = 0.1
     
-    var transitionController = ZoomTransitionController()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -82,18 +80,56 @@ extension BaseCollectionViewController: UICollectionViewDelegateFlowLayout {
 }
 
 
+// segues
 extension BaseCollectionViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destinationViewController = segue.destination as? PagingCollectionViewController {
+            // set stored properties of the destination `PagingCollectionViewController`
             destinationViewController.images = images
             if let indexPath = collectionView.indexPathsForSelectedItems?.first {
                 destinationViewController.startingIndex = indexPath.item
             }
+            
+            // set the navigation controller delegate as the `ZoomTransitionController
+            // of the destination `PagingCollectionViewController`
+            self.navigationController?.delegate = destinationViewController.transitionController
+            
+            // set source and destination delegates for the transition controller
+            destinationViewController.transitionController.fromDelegate = self
+            destinationViewController.transitionController.toDelegate = destinationViewController
         }
     }
 }
 
 
-extension BaseCollectionViewController {
+// ZoomAnimatorDelegate
+extension BaseCollectionViewController: ZoomAnimatorDelegate {
+    func transitionWillStartWith(zoomAnimator: ZoomAnimator) {
+        // add code here to be run just before the transition animation
+    }
+    
+    func transitionDidEndWith(zoomAnimator: ZoomAnimator) {
+        // add code here to be run just after the transition animation
+    }
+    
+    func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
+        if let indexPath = collectionView.indexPathsForSelectedItems?.first {
+            if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
+                print("base controller is sending image view")
+                return cell.imageView
+            }
+        }
+        return nil
+    }
+    
+    func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
+        if let indexPath = collectionView.indexPathsForSelectedItems?.first {
+            if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
+                return view.convert(cell.imageView.frame, to: view)
+            }
+        }
+        return nil
+    }
+    
     
 }
