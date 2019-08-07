@@ -203,3 +203,64 @@ private func calculateZoomInImageFrame(image: UIImage, forView view: UIView) -> 
 ``` 
 
 It first calculates the width:height ratio of the `view` and `image`. If `image`'s ratio is larger than that of `view` (for our uses it is a view controller's view), then the image is touching the sides of the view. Based on this, the if-else statement determines how to send back a `CGRect` scaled to fit `image` in `view`.
+
+### ZoomTransitionController
+
+**The point of the `ZoomTransitionController` class is to oragnize the `ZoomAnimatorDelegate`s for the `ZoomAnimator` animation.**
+
+Like `ZoomAnimator`, it has stored properties for the source and destination view controllers. It also has a `ZoomAnimator` called `animator` to handle the animations (explained above).
+
+### UIViewControllerTransitioningDelegate
+
+The first extension to `ZoomAnimatorController` is to be the `UIViewControllerTransitioningDelegate`. Here, there are two methods: `animationController(forPresented:presenting:source:) -> UIViewControllerAnimatedTransitioning?` and `animationController(forDismissed:) -> UIViewControllerAnimatedTransitioning?`. The first is called upon presentation and the latter upon dismissal. Here is how they are implemented in `ZoomTransitionController`.
+
+**For Presentation**
+
+```swift
+func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+	self.animator.isPresenting = true
+	self.animator.fromDelegate = fromDelegate
+	self.animator.toDelegate = toDelegate
+	return self.animator
+}
+```
+
+**For Dismissal**
+
+```swift
+func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+	self.animator.isPresenting = false
+	let tmp = self.fromDelegate
+	self.animator.fromDelegate = self.toDelegate
+	self.animator.toDelegate = tmp
+	return self.animator
+}
+
+```
+
+The `isPresenting` property of the `ZoomAnimator` is set logically for each method. For the presentation, the `ZoomTransitionController` and `ZoomAnimator` have the same source and destination `ZoomAnimatorDelegate`s, but the dismissal swaps them. This is necessary for how to `ZoomAnimtor.animateZoomOutTransition()` method treats the source and destination view controllers: the source delegate is the zoomed in image (`PagingCollectionViewController`, in this case) and the destination is the zoomed out image (`PagingCollectionViewController `, in this case).
+
+### UINavigationControllerDelegate
+
+The second extension on `ZoomAnimatorController` is `UINavigationControllerDelegate`. It implements the method `navigationController(_:animationControllerFor:from:to:) -> UIViewControllerAnimatedTransitioning?` as shown below. It again just swaps the source and destination delegates for the animator object depending on which way the navigation is going.
+
+```swift
+func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+	if operation == .push {
+		self.animator.isPresenting = true
+		self.animator.fromDelegate = fromDelegate
+		self.animator.toDelegate = toDelegate
+	} else {
+		// is called with `operation == .pop`
+		self.animator.isPresenting = false
+		let tmp = self.fromDelegate
+		self.animator.fromDelegate = self.toDelegate
+		self.animator.toDelegate = tmp
+	}
+	
+	return self.animator
+}
+```
+
+## Setting up `BaseCollectionViewController` for animation
+

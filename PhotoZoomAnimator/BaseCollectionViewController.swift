@@ -18,6 +18,8 @@ class BaseCollectionViewController: UICollectionViewController {
     let numberOfImagesPerRow: CGFloat = 4.0
     let spacingBetweenCells: CGFloat = 0.1
     
+    var transitionController = ZoomTransitionController()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -89,4 +91,9 @@ extension BaseCollectionViewController {
             }
         }
     }
+}
+
+
+extension BaseCollectionViewController {
+    
 }
