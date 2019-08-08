@@ -27,7 +27,7 @@ class PagingCollectionViewController: UICollectionViewController {
     
     var transitionController = ZoomTransitionController()
     
-    // UPDATE //
+    // base view controller to get updated about changes in index
     var containerDelegate: PagingCollectionViewControllerDelegate?
     
     override func viewDidLoad() {
@@ -79,7 +79,6 @@ class PagingCollectionViewController: UICollectionViewController {
         print("making cell \(indexPath.item) for paging view collection")
         cell.image = images[indexPath.item]
         
-        // UPDATE //
         cell.imageView.isHidden = hideCellImageViews
         
         return cell
@@ -92,7 +91,7 @@ class PagingCollectionViewController: UICollectionViewController {
         currentIndex = Int(imageNumber)
     }
     
-    // UPDATE //
+    // change the base view controller's index, too
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         containerDelegate?.containerViewController(self, indexDidChangeTo: currentIndex)
     }
@@ -122,21 +121,16 @@ extension PagingCollectionViewController: UICollectionViewDelegateFlowLayout {
 extension PagingCollectionViewController: ZoomAnimatorDelegate {
     func transitionWillStartWith(zoomAnimator: ZoomAnimator) {
         // add code here to be run just before the transition animation
-        
-        // UPDATE //
         hideCellImageViews = zoomAnimator.isPresenting
     }
     
     func transitionDidEndWith(zoomAnimator: ZoomAnimator) {
         // add code here to be run just after the transition animation
-        
-        // UPDATE //
         hideCellImageViews = false
         collectionView.reloadItems(at: [IndexPath(item: currentIndex, section: 0)])
     }
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-        // UPDATE //
         if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
             print("paging collection view is sending index \(currentIndex)")
             return cell.imageView

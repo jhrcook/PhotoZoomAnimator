@@ -73,110 +73,112 @@ Below is the code, followed by the explanation, for the **zoom in** animation lo
 
 ```swift
 fileprivate func animateZoomInTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        
-        // container view of the animation
-        let containerView = transitionContext.containerView
-        
-        // get view controllers and image views
-        guard
-            let toVC = transitionContext.viewController(forKey: .to),
-            let fromVC = transitionContext.viewController(forKey: .from),
-            let fromReferenceImageView = self.fromDelegate?.referenceImageView(for: self),  // source image view
-            let toReferenceImageView = self.toDelegate?.referenceImageView(for: self),      // destination image view
-            let fromReferenceImageViewFrame = self.fromDelegate?.referenceImageViewFrameInTransitioningView(for: self)
-            else {
-                return
-        }
-        
-        // these are optional functions in the delegates that get called before the animation runs
-        self.fromDelegate?.transitionWillStartWith(zoomAnimator: self)
-        self.toDelegate?.transitionWillStartWith(zoomAnimator: self)
-        
-        // STEP 1 //
-        // start the destination as transparent and hidden
-        toVC.view.alpha = 0
-        toReferenceImageView.isHidden = true
-        containerView.addSubview(toVC.view)  // add to transition container view
-        
-        // STEP 2
-        let referenceImage = fromReferenceImageView.image!
-        if self.transitionImageView == nil {
-            let transitionImageView = UIImageView(image: referenceImage)
-            transitionImageView.contentMode = .scaleAspectFill
-            transitionImageView.clipsToBounds = true
-            transitionImageView.frame = fromReferenceImageViewFrame
-            
-            self.transitionImageView = transitionImageView
-            containerView.addSubview(transitionImageView)
-        }
-        
-        // STEP 3
-        // hide the source image view
-        fromReferenceImageView.isHidden = true
-        
-        // STEP 4 //
-        let finalTransitionSize = calculateZoomInImageFrame(image: referenceImage, forView: toVC.view)
-        
-        // STEP 5 //
-        // animation
-        UIView.animate(
-            withDuration: transitionDuration(using: transitionContext),
-            delay: 0,
-            usingSpringWithDamping: 0.8,
-            initialSpringVelocity: 0,
-            options: [.transitionCrossDissolve],
-            animations: {
-                toVC.view.alpha = 1.0                                  // animate transparency of destination view in
-                self.transitionImageView?.frame = finalTransitionSize  // animate size of image view
-                fromVC.tabBarController?.tabBar.alpha = 0              // animate transparency of tab bar out
-        },
-            completion: { _ in
-                // remove transition image view and show both view controllers, again
-                self.transitionImageView?.removeFromSuperview()
-                self.transitionImageView = nil
-                toReferenceImageView.isHidden = false
-                fromReferenceImageView.isHidden = false
-                
-                // end the transition (unless was cancelled)
-                transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-                
-                // these are optional functions in the delegates that get called after the animation runs
-                self.toDelegate?.transitionDidEndWith(zoomAnimator: self)
-                self.fromDelegate?.transitionDidEndWith(zoomAnimator: self)
-        })
-        
-    }
+
+	// container view of the animation
+	let containerView = transitionContext.containerView
+	
+	// get view controllers and image views
+	guard
+	let fromVC = transitionContext.viewController(forKey: .from),
+	let fromReferenceImageView = self.fromDelegate?.referenceImageView(for: self),
+	let fromReferenceImageViewFrame = self.fromDelegate?.referenceImageViewFrameInTransitioningView(for: self),
+	let toVC = transitionContext.viewController(forKey: .to),
+	let toView = transitionContext.view(forKey: .to)
+	else {
+		return
+	}
+	
+	// these are optional functions in the delegates that get called before the animation runs
+	self.fromDelegate?.transitionWillStartWith(zoomAnimator: self)
+	self.toDelegate?.transitionWillStartWith(zoomAnimator: self)
+
+	// STEP 1 //
+	// start the destination as transparent and hidden
+	let toSnapshot = toVC.view.snapshotView(afterScreenUpdates: true)!
+	toSnapshot.alpha = 0.0
+	toVC.view.alpha = 0.0
+	containerView.addSubview(toVC.view)
+	containerView.addSubview(toSnapshot)
+
+	// STEP 2
+	let referenceImage = fromReferenceImageView.image!
+	if self.transitionImageView == nil {
+		let transitionImageView = UIImageView(image: referenceImage)
+		transitionImageView.contentMode = .scaleAspectFill
+		transitionImageView.clipsToBounds = true
+		transitionImageView.frame = fromReferenceImageViewFrame
+		
+		self.transitionImageView = transitionImageView
+		containerView.addSubview(transitionImageView)
+	}
+	
+	// STEP 3
+	// hide the source image view
+	fromReferenceImageView.isHidden = true
+	
+	
+	// STEP 4 //
+	let finalTransitionSize = calculateZoomInImageFrame(image: referenceImage, forView: toView)
+
+	// STEP 5 //
+	// animation
+	UIView.animate(
+		withDuration: transitionDuration(using: transitionContext),
+		delay: 0,
+		usingSpringWithDamping: 0.8,
+		initialSpringVelocity: 0,
+		options: [.transitionCrossDissolve, .curveEaseOut],
+		animations: {
+			toSnapshot.alpha = 1.0
+			toVC.view.alpha = 1.0
+			self.transitionImageView?.frame = finalTransitionSize  // animate size of image view
+			fromVC.tabBarController?.tabBar.alpha = 0              // animate transparency of tab bar out
+		},
+		completion: { _ in
+			// remove transition image view and show both view controllers, again
+			self.transitionImageView?.removeFromSuperview()
+			self.transitionImageView = nil
+			toSnapshot.removeFromSuperview()
+			
+			fromReferenceImageView.isHidden = false
+			
+			// end the transition (unless was cancelled)
+			transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+			
+			// these are optional functions in the delegates that get called after the animation runs
+			self.toDelegate?.transitionDidEndWith(zoomAnimator: self)
+			self.fromDelegate?.transitionDidEndWith(zoomAnimator: self)
+		})
+}
 ```
 
-The preparation for the animation is to first gather the image view controllers and image views from the source and destination. Also, the source image view's frame in the transition view is requested.
+The preparation for the animation is to first gather the image view controllers and image views from the source and destination. Also, the *source* image view's frame in the transition view is requested.
 
-Before the animation runs, the `transitionWillStart(zoomAnimator:)` methods are run for both delegates. This is just a helper function and need not do anything.
+Before the animation runs, the `transitionWillStart(zoomAnimator:)` methods are run for both delegates. This is just a helper function and need not do anything. It is used by the `PagingCollectionViewController`, explained later.
 
 **Step 1: Hide the destination image view.**
 
-To being, the destination view controller is set to fully transparent and its image view is hidden. *Then* (sequence is important), the destination view controller *view* (not the view controller, itself) is added to the `containerView` of the transition.
+To begin, the destination view controller is set to fully transparent, then added to the `containerView`. It is now ready to be animated in.
 
 **Step 2: Create an image view to animate during the transition.**
 
-A reference image is obtained from the source image view and made the image for `transitionImageView` if it is `nil` (which is usually will be). The image view is prepared in standard ways, and then the image view's frame is set to `fromReferenceImageViewFrame` such that it is now exactly overlapping the source image view. (The authors of this code use a stand-in object *also* named `transitionImageView`, though I do not think it is necessary.)
+A reference image is obtained from the source image view and made the image for `transitionImageView` if it is `nil` (which is usually will be). The image view is prepared in standard ways, and then the image view's frame is set to `fromReferenceImageViewFrame` such that it is now exactly overlapping the source image view. (The authors of this code use a stand-in object *also* named `transitionImageView`, though I do not think it is necessary.) At the end, the `transitionImageView` is added to the transition's `containerView` so it can be animated to move from the source cell's frame to the destination cell image's frame.
 
 **Step 3: Hide the source image view.**
 
-Finally, once the `transitionImageView` is added to the `containerView`, the source image view can be hidden, too.
+The source image view is hidden so that the `transitionImageView` appears to be the same image during the animation. (This is a bit difficult to explain, but just look for it in the animation and it will make sense.)
 
 **Step 4: Calculate the final size of the destination image view**
 
-[Question: Can the size of the destination image view frame be used here?]
-
-The function `calculateZoomInImageFrame(image:forView:)` returns a `CGRect` with the demonsions of the frame to fit the reference image in the destination view controller view. This function is explained further down below.
+The function `calculateZoomInImageFrame(image:forView:)` returns a `CGRect` with the dimensions of the frame to fit the reference image in the destination view controller's view. This function is explained further down below, but here it just provides the target location of for `transitionImageview`.
 
 **Step 5: Animate the image zooming from the source frame to the destination frame.**
 
-The `UIView.animate()` method is passed vlalues for its appropriately-named arguments. For options, it is passed `UIView.AnimationOptions.transitionCrossDissolve` - this provides the "fading" animation. The `animations` closure changes the destination view controller transparency back to 1, scales the `transitionImageView` frame to the final size calculated in Step 4, and the source tab bar (if available) is made transparent.
+The `UIView.animate()` method is passed vlalues for its appropriately-named arguments. For options, it is passed `UIView.AnimationOptions.transitionCrossDissolve` (the "fading" animation) and `curveEaseOut`. The `animations` closure changes the destination view controller's view transparency back to 1, scales the `transitionImageView` frame to the final size calculated in Step 4, and the source tab bar (if available) is made transparent.
 
-When the animation is complete, the transition image view is removed and made `nil` and the source and destination image views are shown (i.e. not hidden; only the destination view image will be visible, though, because the source is behind it). The final touch is to only complete the transition if it was not cancelled: `transitionContext.completeTransition(!transitionContext.transitionWasCancelled)`. Therefore, when a gesture is used to control the animation, if the gesture is undone (e.g. panning back to the original location), the transition will not continue.
+When the animation is complete, the transition image view is removed and made `nil` and the source image view is un-hidden (though it will still not be visible because the source view controller is now behind the destination view controller). The final touch is to only complete the transition if it was not cancelled: `transitionContext.completeTransition(!transitionContext.transitionWasCancelled)`. Therefore, when a gesture is used to control the animation, if the gesture is undone (e.g. panning back to the original location), the transition will not continue.
 
-Once all of the transition stuff has been dealt with, the `transitionDidEndWith(zoomAnimator:)` methods for both the source and destination view controllers are run. These return `Void` so do not have to do anything.
+Once all of the transition stuff has been dealt with, the `transitionDidEndWith(zoomAnimator:)` methods for both the source and destination view controllers are run. These are just helper functions for the view controllers.
 
 
 **The `calculateZoomInImageFrame(image:forView:)` function**
@@ -185,21 +187,21 @@ Below is the function.
 
 ```swift
 private func calculateZoomInImageFrame(image: UIImage, forView view: UIView) -> CGRect {
-        
-        let viewRatio = view.frame.size.width / view.frame.size.height
-        let imageRatio = image.size.width / image.size.height
-        let touchesSides = (imageRatio > viewRatio)
-        
-        if touchesSides {
-            let height = view.frame.width / imageRatio
-            let yPoint = view.frame.minY + (view.frame.height - height) / 2
-            return CGRect(x: 0, y: yPoint, width: view.frame.width, height: height)
-        } else {
-            let width = view.frame.height * imageRatio
-            let xPoint = view.frame.minX + (view.frame.width - width) / 2
-            return CGRect(x: xPoint, y: 0, width: width, height: view.frame.height)
-        }
-    }
+	
+	let viewRatio = view.frame.size.width / view.frame.size.height
+	let imageRatio = image.size.width / image.size.height
+	let touchesSides = (imageRatio > viewRatio)
+	
+	if touchesSides {
+		let height = view.frame.width / imageRatio
+		let yPoint = view.frame.minY + (view.frame.height - height) / 2
+		return CGRect(x: 0, y: yPoint, width: view.frame.width, height: height)
+	} else {
+		let width = view.frame.height * imageRatio
+		let xPoint = view.frame.minX + (view.frame.width - width) / 2
+		return CGRect(x: xPoint, y: 0, width: width, height: view.frame.height)
+	}
+}
 ``` 
 
 It first calculates the width:height ratio of the `view` and `image`. If `image`'s ratio is larger than that of `view` (for our uses it is a view controller's view), then the image is touching the sides of the view. Based on this, the if-else statement determines how to send back a `CGRect` scaled to fit `image` in `view`.
@@ -266,7 +268,7 @@ func navigationController(_ navigationController: UINavigationController, animat
 
 ### Adding a transition controller
 
-A transition controller is added as a stored property to **`PagingCollectionViewController`**
+A transition controller is added as a stored property to **`PagingCollectionViewController`**, the *destination* view controller. This location is chosen (over `BaseCollectionViewController`) because this is where the dismissing gesture will eventually be added. 
 
 ```swift
 class PagingCollectionViewController: UICollectionViewController {
@@ -292,6 +294,46 @@ self.navigationController?.delegate = destinationViewController.transitionContro
 
 Then the source and destination `ZoomAnimatorDelegate`s are set for the `ZoomTransitionController` of the destination view controller.
 
+### The `PagingCollectionViewControllerDelegate` protocol
+
+If the user selects image at index 0 from the base view, then swipes over to index 1 in the paging view, and then returns to the base view, we need to tell the `BaseCollectionViewController` that the new index is 1, not 0 like it originally thought. Therefore, I created a protocol called `PagingCollectionViewControllerDelegate` with a single function `containerViewController(_:indexDidChangeTo:)`. To use this protocol, a new stored property of `PagingCollectionViewController` was created and a the method was called on the delegate after each paging swipe finished:
+
+```swift
+var containerDelegate: PagingCollectionViewControllerDelegate?
+...
+// change the base view controller's index, too
+override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+	containerDelegate?.containerViewController(self, indexDidChangeTo: currentIndex)
+}
+```
+
+and the `BaseCollectionViewController` was set to the delegate during the segue:
+
+```swift
+destinationViewController.containerDelegate = self
+```
+
+To conform to this protocol, a stored property was added, the `collectionView(_:didSelectItemAt:)` method was implemented, and the following extension was appended to `BaseCollectionViewController`.
+
+```swift
+class BaseCollectionViewController: UICollectionViewController {
+	...
+	var currentIndex = 0
+	...
+	override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		currentIndex = indexPath.item
+	}
+```
+
+```swift
+extension BaseCollectionViewController: PagingCollectionViewControllerDelegate {
+	func containerViewController(_ containerViewController: PagingCollectionViewController, indexDidChangeTo currentIndex: Int) {
+		self.currentIndex = currentIndex
+		collectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredVertically, animated: false)
+	}
+}
+```
+
 ### Conforming to the `ZoomAnimatorDelegate` protocol
 
 The last step is to have both `BaseCollectionViewController` and `PagingCollectionViewController` conform to `ZoomAnimatorDelegate`.
@@ -300,25 +342,34 @@ The last step is to have both `BaseCollectionViewController` and `PagingCollecti
 
 Nothing is to be done specifically right before or after the transition animation, so the `transitionWillStartWith(zoomAnimator:)` and `transitionDidEndWith(zoomAnimator:)` methods are left empty.
 
-The `referenceImageView(for:)` method needs to return an image view with the image of the selected cell image view.
+Both the `referenceImageView(for:) -> UIImageView?` and `referenceImageViewFrameInTransitioningView(for:) -> CGRect?` methods first need to get the correct cell to return. Therefore, I created the `getCell(for:)` method. If the animation `isPresenting`, then the index of the correct cell to use must be obtained using `collectionView.indexPathsForSelectedItems?.first`. If the zoom animation is not presenting, then the index of the cell to use is the `currentIndex` which is updated by the `PagingCollectionViewController` using the `PagingCollectionViewControllerDelegate` protocol. Once the correct index has been found, the cell is retrieved.
 
 ```swift
-func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-	if let indexPath = collectionView.indexPathsForSelectedItems?.first {
-		return UIImageView(image: images[indexPath.item])
+func getCell(for zoomAnimator: ZoomAnimator) -> BaseCollectionViewCell? {
+	let indexPath = zoomAnimator.isPresenting ? collectionView.indexPathsForSelectedItems?.first : IndexPath(item: currentIndex, section: 0)
+        
+	if let cell = collectionView.cellForItem(at: indexPath!) as? BaseCollectionViewCell {
+		return cell
+	} else {
+		return nil
 	}
+}
+```
+
+The `referenceImageView(for:)` method needs to return an image view with the image of the selected cell image view. Therefore, it uses `getCell(for:)` and returns the cell's `imageView` property.
+```swift
+func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
+	if let cell = getCell(for: zoomAnimator) { return cell.imageView }
 	return nil
 }
 ```
 
-The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the frame of the selected *cell* needs to be converted to `view` with regards to the collection view.
+The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view from the perspective of the cell's content view with regards to the entire view. To translate the `CGRect` of the cell's image view frame to the entire view, the `UIView.convert(_:to)` method was used.
 
 ```swift
 func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
-	if let indexPath = collectionView.indexPathsForSelectedItems?.first {
-		if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-			return collectionView.convert(cell.frame, to: view)
-		}
+	if let cell = getCell(for: zoomAnimator) {
+		return cell.contentView.convert(cell.imageView.frame, to: view)
 	}
 	return nil
 }
@@ -327,23 +378,57 @@ func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) 
 
 #### `PagingCollectionViewController`
 
-Again, nothing is to be done specifically right before or after the transition animation, so the `transitionWillStartWith(zoomAnimator:)` and `transitionDidEndWith(zoomAnimator:)` methods are left empty.
+The `PagingCollectionViewController` was a bit more complicated. The major hurdle was to get around the fact that the cell being transitioned to is created after the animation begins and before the animation ends. Therefore, the image view of the destination cell could not be accessed by `ZoomAnimator`, but would appear during the transition. To see what I mean, I point out a change you can make to make the problem (but not the solution) very obvious. 
 
-The `referenceImageView(for:)` method needs to return an image view containing the same image as will be shown in the cell provided by the collection view. The index of the current cell is stored in `currentIndex`. This variable is set as `selectedIndex` upon initialization and then updated during scrolling of the collection view; therefore, it can be used for both presenting and dismissal.
+Let's begin with the `referenceImageView(for:)->UIImageView?` and `referenceImageViewFrameInTransitioningView(for:)->CGRect?` methods as they are very straight forward. Both retrieve the cell at `currentIndex` (which is set to `startingIndex` beforehand in`viewDidLoad()`) and either return the image view or converted image view frame, respectively.
 
 ```swift
 func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-	return UIImageView(image: images[currentIndex])
+	if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
+		return cell.imageView
+	}
+	return nil
 }
-```
-
-The `referenceImageViewFrameInTransitioningView(for:)` method needs to return the frame of the image view with regards to the entire view. Therefore, the `UIView.convert(_:to:)` method is used on `collectionView`.
-
-```swift
+    
 func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
 	if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
-		return collectionView.convert(cell.imageView.frame, to: cell.scrollView)
+		return cell.scrollView.convert(cell.imageView.frame, to: view)
 	}
 	return nil
 }
 ```
+
+The fix to the "phantom image view" problem described previously is handled in `transitionWillStartWith(zoomAnimator:)` and `transitionDidEndWith(zoomAnimator:)`. Basically, during presentation, the cell's image is hidden, and then it is un-hidden afterwards.
+
+```swift
+func transitionWillStartWith(zoomAnimator: ZoomAnimator) {
+	// add code here to be run just before the transition animation
+	hideCellImageViews = zoomAnimator.isPresenting
+}
+    
+func transitionDidEndWith(zoomAnimator: ZoomAnimator) {
+	// add code here to be run just after the transition animation
+	hideCellImageViews = false
+	collectionView.reloadItems(at: [IndexPath(item: currentIndex, section: 0)])
+}
+```
+
+The final line in `transitionDidEndWith(zoomAnimator:)` just reloads the current cell with `hideCellImageViews` set to `false`. The new stored property of `PagingCollectionViewController`, `hideCellImageViews: Bool` takes effect during the creation of the collection view's cells.
+
+```swift
+override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+	let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PagingCollectionViewCell
+    
+	cell.image = images[indexPath.item]
+        
+	cell.imageView.isHidden = hideCellImageViews  // hide the image during presentation
+        
+	return cell
+}
+```
+
+### Animated transition
+
+Below is a screen recording of the non-interactive zoom transition!
+
+<img src="progress_screenshots/zoom_animation_noninteractive_HD.gif" width="300"/>

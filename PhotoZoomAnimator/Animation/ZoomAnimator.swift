@@ -55,11 +55,8 @@ class ZoomAnimator: NSObject {
         
         // STEP 1 //
         // start the destination as transparent and hidden
-        let toSnapshot = toVC.view.snapshotView(afterScreenUpdates: true)!
-        toSnapshot.alpha = 0.0
         toVC.view.alpha = 0.0
         containerView.addSubview(toVC.view)
-        containerView.addSubview(toSnapshot)
         
         // STEP 2
         let referenceImage = fromReferenceImageView.image!
@@ -90,7 +87,6 @@ class ZoomAnimator: NSObject {
             initialSpringVelocity: 0,
             options: [.transitionCrossDissolve, .curveEaseOut],
             animations: {
-                toSnapshot.alpha = 1.0
                 toVC.view.alpha = 1.0
                 self.transitionImageView?.frame = finalTransitionSize  // animate size of image view
                 fromVC.tabBarController?.tabBar.alpha = 0              // animate transparency of tab bar out
@@ -99,7 +95,6 @@ class ZoomAnimator: NSObject {
                 // remove transition image view and show both view controllers, again
                 self.transitionImageView?.removeFromSuperview()
                 self.transitionImageView = nil
-                toSnapshot.removeFromSuperview()
                 
                 fromReferenceImageView.isHidden = false
                 
@@ -211,8 +206,8 @@ class ZoomAnimator: NSObject {
 
 extension ZoomAnimator: UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return isPresenting ? 0.5 : 0.25
-//        return 2.0
+//        return isPresenting ? 0.5 : 0.25
+        return 2.0
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {

@@ -100,8 +100,8 @@ extension BaseCollectionViewController {
             // of the destination `PagingCollectionViewController`
             self.navigationController?.delegate = destinationViewController.transitionController
             
-            //UPDATE//
             // PagingCollectionViewControllerDelegate
+            // will get updated about changes in index from the paging view controller
             destinationViewController.containerDelegate = self
             
             // set source and destination delegates for the transition controller
@@ -122,37 +122,27 @@ extension BaseCollectionViewController: ZoomAnimatorDelegate {
         // add code here to be run just after the transition animation
     }
     
-    func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
-        // UPDATED //
-        if zoomAnimator.isPresenting {
-            if let indexPath = collectionView.indexPathsForSelectedItems?.first, let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-                return cell.imageView
-            }
-        } else {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? BaseCollectionViewCell {
-                print("base collection view sending index \(currentIndex)")
-                return cell.imageView
-            }
-        }
+    func getCell(for zoomAnimator: ZoomAnimator) -> BaseCollectionViewCell? {
+        let indexPath = zoomAnimator.isPresenting ? collectionView.indexPathsForSelectedItems?.first : IndexPath(item: currentIndex, section: 0)
         
+        if let cell = collectionView.cellForItem(at: indexPath!) as? BaseCollectionViewCell {
+            return cell
+        } else {
+            return nil
+        }
+    }
+    
+    func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
+        if let cell = getCell(for: zoomAnimator) { return cell.imageView }
         return nil
     }
     
     func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
-        if zoomAnimator.isPresenting {
-            if let indexPath = collectionView.indexPathsForSelectedItems?.first, let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-                return cell.contentView.convert(cell.imageView.frame, to: view)
-            }
-        } else {
-            if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? BaseCollectionViewCell {
-                print("base view controller sending image frame; index \(currentIndex)")
-                return cell.contentView.convert(cell.imageView.frame, to: view)
-            }
+        if let cell = getCell(for: zoomAnimator) {
+            return cell.contentView.convert(cell.imageView.frame, to: view)
         }
         return nil
     }
-    
-    
 }
 
 
@@ -161,6 +151,4 @@ extension BaseCollectionViewController: PagingCollectionViewControllerDelegate {
         self.currentIndex = currentIndex
         collectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredVertically, animated: false)
     }
-    
-    
 }
