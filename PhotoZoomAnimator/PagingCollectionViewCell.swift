@@ -76,7 +76,6 @@ class PagingCollectionViewCell: UICollectionViewCell {
             scrollView.zoom(to: CGRect(center: tapLocation, size: CGSize(width: zoomWidth, height: zoomHeight)), animated: true)
         }
     }
-    
 }
 
 
@@ -101,6 +100,10 @@ extension PagingCollectionViewCell {
 
 // extension to handle zooming
 extension PagingCollectionViewCell: UIScrollViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print("---\npaging cell scrolled\n---")
+    }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         let imageViewSize = imageView.frame.size

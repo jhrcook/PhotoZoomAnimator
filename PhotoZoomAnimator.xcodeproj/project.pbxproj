@@ -17,6 +17,8 @@
 		84DE472822FA2AB10086A8F4 /* PagingCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472722FA2AB10086A8F4 /* PagingCollectionViewController.swift */; };
 		84DE472A22FA2AC30086A8F4 /* PagingCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472922FA2AC30086A8F4 /* PagingCollectionViewCell.swift */; };
 		84DE472C22FA30220086A8F4 /* utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE472B22FA30220086A8F4 /* utilities.swift */; };
+		84DE473122FA4CEA0086A8F4 /* ZoomAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE473022FA4CEA0086A8F4 /* ZoomAnimator.swift */; };
+		84DE473422FA4D490086A8F4 /* ZoomTransitionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DE473322FA4D490086A8F4 /* ZoomTransitionController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		84DE472722FA2AB10086A8F4 /* PagingCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingCollectionViewController.swift; sourceTree = "<group>"; };
 		84DE472922FA2AC30086A8F4 /* PagingCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingCollectionViewCell.swift; sourceTree = "<group>"; };
 		84DE472B22FA30220086A8F4 /* utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utilities.swift; sourceTree = "<group>"; };
+		84DE473022FA4CEA0086A8F4 /* ZoomAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomAnimator.swift; sourceTree = "<group>"; };
+		84DE473322FA4D490086A8F4 /* ZoomTransitionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZoomTransitionController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +90,7 @@
 		84DE471022FA29330086A8F4 /* PhotoZoomAnimator */ = {
 			isa = PBXGroup;
 			children = (
+				84DE473222FA4CF50086A8F4 /* Animation */,
 				84DE471122FA29330086A8F4 /* AppDelegate.swift */,
 				84DE471522FA29330086A8F4 /* Main.storyboard */,
 				84DE472322FA2A8E0086A8F4 /* BaseCollectionViewController.swift */,
@@ -98,6 +103,15 @@
 				84DE471D22FA29350086A8F4 /* Info.plist */,
 			);
 			path = PhotoZoomAnimator;
+			sourceTree = "<group>";
+		};
+		84DE473222FA4CF50086A8F4 /* Animation */ = {
+			isa = PBXGroup;
+			children = (
+				84DE473022FA4CEA0086A8F4 /* ZoomAnimator.swift */,
+				84DE473322FA4D490086A8F4 /* ZoomTransitionController.swift */,
+			);
+			path = Animation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -218,7 +232,9 @@
 				84DE472C22FA30220086A8F4 /* utilities.swift in Sources */,
 				84DE472822FA2AB10086A8F4 /* PagingCollectionViewController.swift in Sources */,
 				84DE471222FA29330086A8F4 /* AppDelegate.swift in Sources */,
+				84DE473122FA4CEA0086A8F4 /* ZoomAnimator.swift in Sources */,
 				84DE472422FA2A8E0086A8F4 /* BaseCollectionViewController.swift in Sources */,
+				84DE473422FA4D490086A8F4 /* ZoomTransitionController.swift in Sources */,
 				84DE472A22FA2AC30086A8F4 /* PagingCollectionViewCell.swift in Sources */,
 				84DE472622FA2AA00086A8F4 /* BaseCollectionViewCell.swift in Sources */,
 			);
@@ -370,6 +386,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = CRMHYJ9F9F;
 				INFOPLIST_FILE = PhotoZoomAnimator/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -389,6 +406,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = CRMHYJ9F9F;
 				INFOPLIST_FILE = PhotoZoomAnimator/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

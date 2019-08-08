@@ -10,12 +10,25 @@ import UIKit
 
 private let reuseIdentifier = "pagingImageCell"
 
+// UPDATE //
+protocol PagingCollectionViewControllerDelegate {
+    func containerViewController(_ containerViewController: PagingCollectionViewController, indexDidChangeTo currentIndex: Int)
+}
+
+
 class PagingCollectionViewController: UICollectionViewController {
 
     var startingIndex: Int = 0
     var images = [UIImage]()
     
     var currentIndex = 0
+    
+    var hideCellImageViews = false
+    
+    var transitionController = ZoomTransitionController()
+    
+    // base view controller to get updated about changes in index
+    var containerDelegate: PagingCollectionViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,21 +42,25 @@ class PagingCollectionViewController: UICollectionViewController {
         // Do any additional setup after loading the view.
         setupCollectionView()
         currentIndex = startingIndex
+        
+        print("paging view controller did load")
     }
     
     func setupCollectionView() {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.showsVerticalScrollIndicator = false
         collectionView.isPagingEnabled = true
+        collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.alwaysBounceHorizontal = true
         collectionView.alwaysBounceVertical = true
         
-        collectionView.contentSize = CGSize(width: view.frame.width * CGFloat(images.count), height: 0.0)
+        collectionView.contentSize = CGSize(width: view.frame.width * CGFloat(images.count), height: 1.0)
         
-        // collectionView.delegate = self
+        collectionView.delegate = self
         collectionView.dataSource = self
         
         // set initial index at `startingIndex`
+        print("scrolling to \(startingIndex)")
         collectionView.scrollToItem(at: IndexPath(item: startingIndex, section: 0), at: .right, animated: false)
     }
 
@@ -59,17 +76,26 @@ class PagingCollectionViewController: UICollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PagingCollectionViewCell
     
+        print("making cell \(indexPath.item) for paging view collection")
         cell.image = images[indexPath.item]
-    
+        
+        cell.imageView.isHidden = hideCellImageViews
+        
         return cell
     }
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print("---\npaging collection view did scroll\n---")
         var imageNumber = Float((scrollView.contentOffset.x - 0.5 * view.frame.width) / view.frame.width)
         imageNumber.round(.up)
         currentIndex = Int(imageNumber)
     }
-
+    
+    // change the base view controller's index, too
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        containerDelegate?.containerViewController(self, indexDidChangeTo: currentIndex)
+    }
+    
 }
 
 
@@ -78,7 +104,7 @@ class PagingCollectionViewController: UICollectionViewController {
 extension PagingCollectionViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return view.frame.size
+        return collectionView.frame.size
     }
     
     
@@ -89,4 +115,36 @@ extension PagingCollectionViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0.0
     }
+}
+
+
+extension PagingCollectionViewController: ZoomAnimatorDelegate {
+    func transitionWillStartWith(zoomAnimator: ZoomAnimator) {
+        // add code here to be run just before the transition animation
+        hideCellImageViews = zoomAnimator.isPresenting
+    }
+    
+    func transitionDidEndWith(zoomAnimator: ZoomAnimator) {
+        // add code here to be run just after the transition animation
+        hideCellImageViews = false
+        collectionView.reloadItems(at: [IndexPath(item: currentIndex, section: 0)])
+    }
+    
+    func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
+        if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
+            print("paging collection view is sending index \(currentIndex)")
+            return cell.imageView
+        }
+        return nil
+    }
+    
+    func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
+        if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
+            print("paging view controller sending image frame")
+            return cell.scrollView.convert(cell.imageView.frame, to: view)
+        }
+        return nil
+    }
+    
+    
 }
