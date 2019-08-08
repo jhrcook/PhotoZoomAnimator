@@ -432,3 +432,8 @@ override func collectionView(_ collectionView: UICollectionView, cellForItemAt i
 Below is a screen recording of the non-interactive zoom transition!
 
 <img src="progress_screenshots/zoom_animation_noninteractive_HD.gif" width="300"/>
+
+
+## Interactive transition
+
+From here, I will make the dismissal react to gestures. The goal is to have the user be able to pan the image up or down to induce the transition, and have the image "dragged" by the pan as long as the user hold on.
