@@ -88,7 +88,7 @@ class ZoomAnimator: NSObject {
             delay: 0,
             usingSpringWithDamping: 0.8,
             initialSpringVelocity: 0,
-            options: [.transitionCrossDissolve],
+            options: [.transitionCrossDissolve, .curveEaseOut],
             animations: {
                 toSnapshot.alpha = 1.0
                 toVC.view.alpha = 1.0
@@ -98,6 +98,7 @@ class ZoomAnimator: NSObject {
             completion: { _ in
                 // remove transition image view and show both view controllers, again
                 self.transitionImageView?.removeFromSuperview()
+                self.transitionImageView = nil
                 toSnapshot.removeFromSuperview()
                 
                 fromReferenceImageView.isHidden = false
@@ -127,6 +128,7 @@ class ZoomAnimator: NSObject {
             let fromReferenceImageViewFrame = self.fromDelegate?.referenceImageViewFrameInTransitioningView(for: self),
             let toReferenceImageViewFrame = self.toDelegate?.referenceImageViewFrameInTransitioningView(for: self)
             else {
+                print("unable to collect required assets - animation failed")
                 return
         }
         
@@ -145,13 +147,13 @@ class ZoomAnimator: NSObject {
             transitionImageView.contentMode = .scaleAspectFill
             transitionImageView.clipsToBounds = true
             transitionImageView.frame = fromReferenceImageViewFrame
-            
             self.transitionImageView = transitionImageView
-            containerView.addSubview(transitionImageView)
         }
         
         // STEP 3 //
-        containerView.insertSubview(toVC.view, belowSubview: fromVC.view)
+        containerView.addSubview(toVC.view)
+        containerView.addSubview(fromVC.view)
+        containerView.addSubview(transitionImageView!)
         fromReferenceImageView.isHidden = true
         
         // STEP 4 //
@@ -161,7 +163,7 @@ class ZoomAnimator: NSObject {
         UIView.animate(
             withDuration: transitionDuration(using: transitionContext),
             delay: 0,
-            options: [],
+            options: [.curveEaseOut],
             animations: {
                 fromVC.view.alpha = 0                                  // animate transparency of source view out
                 self.transitionImageView?.frame = finalTransitionSize  // animate size of image view
@@ -170,6 +172,7 @@ class ZoomAnimator: NSObject {
             completion: { _ in
                 self.transitionImageView?.removeFromSuperview()
                 self.transitionImageView = nil
+                
                 toReferenceImageView.isHidden = false
                 fromReferenceImageView.isHidden = false
                 
@@ -208,8 +211,8 @@ class ZoomAnimator: NSObject {
 
 extension ZoomAnimator: UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-//        return isPresenting ? 0.5 : 0.25
-        return 2.0
+        return isPresenting ? 0.5 : 0.25
+//        return 2.0
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {

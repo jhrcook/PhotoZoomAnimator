@@ -18,6 +18,8 @@ class BaseCollectionViewController: UICollectionViewController {
     let numberOfImagesPerRow: CGFloat = 4.0
     let spacingBetweenCells: CGFloat = 0.1
     
+    var currentIndex = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -57,6 +59,10 @@ class BaseCollectionViewController: UICollectionViewController {
     
         return cell
     }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        currentIndex = indexPath.item
+    }
 
 }
 
@@ -94,6 +100,10 @@ extension BaseCollectionViewController {
             // of the destination `PagingCollectionViewController`
             self.navigationController?.delegate = destinationViewController.transitionController
             
+            //UPDATE//
+            // PagingCollectionViewControllerDelegate
+            destinationViewController.containerDelegate = self
+            
             // set source and destination delegates for the transition controller
             destinationViewController.transitionController.fromDelegate = self
             destinationViewController.transitionController.toDelegate = destinationViewController
@@ -114,19 +124,42 @@ extension BaseCollectionViewController: ZoomAnimatorDelegate {
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
         // UPDATED //
-        if let indexPath = collectionView.indexPathsForSelectedItems?.first, let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-            return cell.imageView
+        if zoomAnimator.isPresenting {
+            if let indexPath = collectionView.indexPathsForSelectedItems?.first, let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
+                return cell.imageView
+            }
+        } else {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? BaseCollectionViewCell {
+                print("base collection view sending index \(currentIndex)")
+                return cell.imageView
+            }
         }
+        
         return nil
     }
     
     func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
-        if let indexPath = collectionView.indexPathsForSelectedItems?.first {
-            if let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
-                return collectionView.convert(cell.frame, to: view)
+        if zoomAnimator.isPresenting {
+            if let indexPath = collectionView.indexPathsForSelectedItems?.first, let cell = collectionView.cellForItem(at: indexPath) as? BaseCollectionViewCell {
+                return cell.contentView.convert(cell.imageView.frame, to: view)
+            }
+        } else {
+            if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? BaseCollectionViewCell {
+                print("base view controller sending image frame; index \(currentIndex)")
+                return cell.contentView.convert(cell.imageView.frame, to: view)
             }
         }
         return nil
+    }
+    
+    
+}
+
+
+extension BaseCollectionViewController: PagingCollectionViewControllerDelegate {
+    func containerViewController(_ containerViewController: PagingCollectionViewController, indexDidChangeTo currentIndex: Int) {
+        self.currentIndex = currentIndex
+        collectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredVertically, animated: false)
     }
     
     

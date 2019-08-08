@@ -46,13 +46,13 @@ class PagingCollectionViewCell: UICollectionViewCell {
     
     func setupScrollView() {
         scrollView = UIScrollView()
-        scrollView.frame = contentView.frame
+        scrollView.frame = frame
         scrollView.delegate = self
         scrollView.showsVerticalScrollIndicator = false
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceVertical = false
         scrollView.alwaysBounceHorizontal = false
-//        scrollView.contentInsetAdjustmentBehavior = .never
+        scrollView.contentInsetAdjustmentBehavior = .never
         contentView.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in make.edges.equalTo(contentView) }
     }
@@ -76,7 +76,6 @@ class PagingCollectionViewCell: UICollectionViewCell {
             scrollView.zoom(to: CGRect(center: tapLocation, size: CGSize(width: zoomWidth, height: zoomHeight)), animated: true)
         }
     }
-    
 }
 
 
@@ -101,6 +100,10 @@ extension PagingCollectionViewCell {
 
 // extension to handle zooming
 extension PagingCollectionViewCell: UIScrollViewDelegate {
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print("---\npaging cell scrolled\n---")
+    }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         let imageViewSize = imageView.frame.size
