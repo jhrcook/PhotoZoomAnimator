@@ -50,6 +50,7 @@ class PagingCollectionViewController: UICollectionViewController {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.showsVerticalScrollIndicator = false
         collectionView.isPagingEnabled = true
+        collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.alwaysBounceHorizontal = true
         collectionView.alwaysBounceVertical = true
         
