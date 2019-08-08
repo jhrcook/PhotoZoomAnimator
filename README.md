@@ -69,7 +69,7 @@ The `ZoomAnimator` class has four properties:
 
 The first step in creating this animator is to have it conform to `UIViewControllerAnimatedTransitioning`. This requires two methods, `transitionDuration(using:)` and `animateTransition(using:)`. The first returns the length (in seconds) of the animation. The second method returns a `UIViewControllerContextTransitioning` object that handles the animation. There are two animation functions, one for zooming in and the other for zooming out; the first is run if `isPresenting`, otherwise the latter is run.
 
-Below is the code, followed by the explanation, for the **zoom in** animation logic. The zoom out logic is very simillar (i.e. almost identical), so I will not cover it in-depth here.
+Below is the code, followed by the explanation, for the **zoom in** animation logic. The zoom out logic is very simillar (i.e. almost identical), so I will not cover it in-depth here. The only difference to keep in mind is that both the source and destination view controller's cells have been created, so the image views of the cells can be handled specifically by the animation (this will be relevant later when we run into a problem with the zoom in animation getting the destination's cell's image view).
 
 ```swift
 fileprivate func animateZoomInTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -437,3 +437,36 @@ Below is a screen recording of the non-interactive zoom transition!
 ## Interactive transition
 
 From here, I will make the dismissal react to gestures. The goal is to have the user be able to pan the image up or down to induce the transition, and have the image "dragged" by the pan as long as the user hold on.
+
+### ZoomDismissalInteractionController
+
+I began by making a new class `ZoomDismissalInteractionController` which will be responsible for handling the logic of interactive transitions. It has a stored property `transitionContext` of type `UIViewControllerContextTransitioning`. This will be accessed to get all of the information about the source and destination views.
+
+Another stored property, `animator`, will be typecast to `ZoomAnimator` and provide access to all of the objects being animated above.
+
+#### Responding to pan gesture
+
+To respond to the pan gesture, the method `didPanWith(gestureRecognizer:)` was created. It begins by collecting all of the neccesary image views, view controllers, and frames.
+
+**Step 1: Hide source and destination image views.**
+
+Hide the source and destination image views, replacing them with the transition view. We will have to manually move this around as the user pans.
+
+**Step 2: Capture the starting and current positions.**
+
+A constant `anchorPoint` is created and holds the center of the original/source image view frame. In addition, `translatedPoint` captures the movement of the pan within this view.
+
+**Step 3: Adjust the change in vertical displacemet according to the device's orientation.**
+
+**Step 4: Calculate the level of transparency and scaling according to the progress of the pan.**
+
+**Step 5: Update the transition.**
+
+**Step 6: Recognize of the pan gesture has ended.**
+
+**Step 7: Register and assess the velocity of the pan.**
+
+**Step 8: Finish the animation and *cancel* the transition.**
+
+**Step 9: Finish the animation and transition.**
+
