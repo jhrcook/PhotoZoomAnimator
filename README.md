@@ -9,13 +9,18 @@
 [![jhc twitter](https://img.shields.io/badge/Twitter-JoshDoesaThing-00aced.svg?style=flat&logo=twitter)](https://twitter.com/JoshDoesa)
 [![jhc website](https://img.shields.io/badge/Website-JoshDoesaThing-5087B2.svg?style=flat&logo=telegram)](https://www.joshdoesathing.com)
 
-This is an experimental iOS app as I try to figure out how to make a custom interactive transition (to use in my [PlantTracker app](https://github.com/jhrcook/PlantTracker)). The goal is to replicate the transition used in the native phone app. I will do my best to document the process here.
+This is an experimental iOS app explaining how to make a custom interactive transition (to use in my [PlantTracker app](https://github.com/jhrcook/PlantTracker)). The goal is to replicate the transition used in the native phone app. I did my best to document the process here.
+
+### Final Result
+
+<img src="progress_screenshots/zoom_animation_interactive_HD.gif" width="300"/>
+
 
 ### Resources
 
 I used the [SnapKit library]((http://snapkit.io)) to make the contraints on my views.
 
-This [GitHub repository](https://github.com/masamichiueta/FluidPhoto) (and my [fork](https://github.com/jhrcook/FluidPhoto)) and its paired [Medium article](https://medium.com/@masamichiueta/create-transition-and-interaction-like-ios-photos-app-2b9f16313d3) will provide a lot of assitance. It has the final transition that I want to replicate, but also a lot of other stuff. Also, the accompanying article is not too helpful.
+This [GitHub repository](https://github.com/masamichiueta/FluidPhoto) (and my [fork](https://github.com/jhrcook/FluidPhoto)) and its paired [Medium article](https://medium.com/@masamichiueta/create-transition-and-interaction-like-ios-photos-app-2b9f16313d3) was used as a guide. It has the final transition that I want to replicate, but also a lot of other stuff. Unfortunately, the accompanying article is not too helpful, so I tried to be more comprehensive and explanatory, here.
 
 ---
 
@@ -69,7 +74,7 @@ The `ZoomAnimator` class has four properties:
 
 The first step in creating this animator is to have it conform to `UIViewControllerAnimatedTransitioning`. This requires two methods, `transitionDuration(using:)` and `animateTransition(using:)`. The first returns the length (in seconds) of the animation. The second method returns a `UIViewControllerContextTransitioning` object that handles the animation. There are two animation functions, one for zooming in and the other for zooming out; the first is run if `isPresenting`, otherwise the latter is run.
 
-Below is the code, followed by the explanation, for the **zoom in** animation logic. The zoom out logic is very simillar (i.e. almost identical), so I will not cover it in-depth here.
+Below is the code, followed by the explanation, for the **zoom in** animation logic. The zoom out logic is very simillar (i.e. almost identical), so I will not cover it in-depth here. The only difference to keep in mind is that both the source and destination view controller's cells have been created, so the image views of the cells can be handled specifically by the animation (this will be relevant later when we run into a problem with the zoom in animation getting the destination's cell's image view).
 
 ```swift
 fileprivate func animateZoomInTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -437,3 +442,285 @@ Below is a screen recording of the non-interactive zoom transition!
 ## Interactive transition
 
 From here, I will make the dismissal react to gestures. The goal is to have the user be able to pan the image up or down to induce the transition, and have the image "dragged" by the pan as long as the user hold on.
+
+### ZoomDismissalInteractionController
+
+I began by making a new class `ZoomDismissalInteractionController` which will be responsible for handling the logic of interactive transitions. It has a stored property `transitionContext` of type `UIViewControllerContextTransitioning`. This will be accessed to get all of the information about the source and destination views.
+
+Another stored property, `animator`, will be typecast to `ZoomAnimator` and provide access to all of the objects being animated above.
+
+#### Responding to pan gesture
+
+To respond to the pan gesture, the method `didPanWith(gestureRecognizer:)` was created. It begins by collecting all of the neccesary image views, view controllers, and frames.
+
+**Step 1: Hide source and destination image views.**
+
+Hide the source and destination image views, replacing them with the transition view. We will have to manually move this around as the user pans.
+
+```swift
+fromReferenceImageView.isHidden = true
+toReferenceImageView.isHidden = true
+```
+
+**Step 2: Capture the starting and current positions.**
+
+A constant `anchorPoint` is created and holds the center of the original/source image view frame. In addition, `translatedPoint` captures the movement of the pan within this view.
+
+```swift
+let anchorPoint = CGPoint(x: fromReferenceImageViewFrame.midX, y: fromReferenceImageViewFrame.midY)
+let translatedPoint = gestureRecognizer.translation(in: fromVC.view)
+```
+
+**Step 3: Adjust the change in vertical displacemet according to the device's orientation.**
+
+This step adjusts the change in vertical displacement according to the orientation of the device. Further, it only takes *positive* (i.e. down) vertical changes.
+
+```swift
+var verticalDelta: CGFloat = 0.0
+if UIDevice.current.orientation.isLandscape {
+	verticalDelta = max(translatedPoint.x, 0.0)
+} else {
+	verticalDelta = max(translatedPoint.y, 0.0)
+}
+```
+
+**Step 4: Calculate the level of transparency and scaling according to the progress of the pan.**
+
+The transparency that the background should have and the scales of the transition image is calculated from the displacement. I will not go into detail about how each of the functions that perform these calculations operate because they are actually rather simple. In escence, they each have a cut-off for where the maximum displacement should be and find where the current displacement is, accordingly.
+
+The new transparency is set as the alpha forthe source view contraoller and the destination tab controller.
+
+The calculated scale is used to transform the size of the transition image view and also, in conjunction with `anchorPoint` and `translatedPoint`, to redefine the center of the image view.
+
+```swift
+let fromVCBackgroundAlpha = calculateBrackgroundAlphaFor(fromVC.view, atDelta: verticalDelta)
+let scale = calculateScaleIn(fromVC.view, atDelta: verticalDelta)
+
+fromVC.view.alpha = fromVCBackgroundAlpha
+toVC.tabBarController?.tabBar.alpha = 1 - fromVCBackgroundAlpha
+
+transitionImageView.transform = CGAffineTransform(scaleX: scale, y: scale)
+let newCenterX = anchorPoint.x + translatedPoint.x
+let newCenterY = anchorPoint.y + translatedPoint.y - transitionImageView.frame.height * (1 - scale) / 2.0
+let newCenter = CGPoint(x: newCenterX, y: newCenterY)
+transitionImageView.center = newCenter
+```
+
+
+**Step 5: Update the transition.**
+
+Using the method `transitionContext.updateInteractiveTransition(1 - scale)`, the transition is incremented depending on where the pan gesture is. The scale will get smaller as the gesture progresses, therefore, this method call will move the transition forward as the user pans.
+
+```swift
+transitionContext.updateInteractiveTransition(1 - scale)
+```
+
+**Step 6: Recognize of the pan gesture has ended.**
+
+If the pan gesture finishes (the user releases the image), then the animation must continue similarly to how the zoom animation was created. If the pan gesture has not ended, then this is the end of the function.
+
+```swift
+if gestureRecognizer.state == .ended {
+	...
+```
+
+**Step 7: Register and assess the velocity of the pan.**
+
+If the user did finish their pan gesture, then the velocity of the gesture is collected from `gestureRecognizer` and the decision of whether to cancel or finish the transitoin is made. If there is upward velocity of the gesture or the transition image is above the original image view (taking into accoun the device's orientation), then the transition needs to cancel.
+
+```swift
+let velocity = gestureRecognizer.velocity(in: fromVC.view)
+
+var velocityCheck = false
+
+if UIDevice.current.orientation.isLandscape {
+	velocityCheck = velocity.x < 0 || newCenter.x < anchorPoint.x
+} else {
+	velocityCheck = velocity.y < 0 || newCenter.y < anchorPoint.y
+}
+```
+
+**Step 8: Finish the animation and *cancel* the transition.**
+
+If there is an upward velocity or the transition image view is above the source image view, the animation returns the transtion image view back to the source image view's frame, and the transtion is canceled using `transitionContext.cancelInteractiveTransition()`.
+
+```swift
+if velocityCheck {
+	print("cancelling interactive transition")
+	// cancel transition
+	UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: [], animations: {
+		transitionImageView.frame = fromReferenceImageViewFrame
+		fromVC.view.alpha = 1.0
+		toVC.tabBarController?.tabBar.alpha = 0.0
+	}, completion: { _ in
+		transitionImageView.removeFromSuperview()
+                    
+		toReferenceImageView.isHidden = false
+		fromReferenceImageView.isHidden = false
+
+		transitionContext.cancelInteractiveTransition()
+		transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                    
+		animator.toDelegate?.transitionDidEndWith(zoomAnimator: animator)
+		animator.fromDelegate?.transitionDidEndWith(zoomAnimator: animator)
+		
+		animator.transitionImageView = nil
+		self.transitionContext = nil
+	})
+	return
+}
+```
+
+**Step 9: Finish the animation and transition.**
+
+If the above conditions were not met, then the animation for the transition is completed and the transition is finished using `self.transitionContext?.finishInteractiveTransition()`.
+
+```swift
+print("finishing interactive transition")
+UIView.animateKeyframes(withDuration: 0.25, delay: 0, options: [], animations: {
+	fromVC.view.alpha = 0.0
+	transitionImageView.frame = toReferenceImageViewFrame
+	toVC.tabBarController?.tabBar.alpha = 1.0
+}, completion: { _ in
+	transitionImageView.removeFromSuperview()
+                
+	toReferenceImageView.isHidden = false
+	fromReferenceImageView.isHidden = false
+                
+	self.transitionContext?.finishInteractiveTransition()
+	transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+                
+	animator.toDelegate?.transitionDidEndWith(zoomAnimator: animator)
+	animator.fromDelegate?.transitionDidEndWith(zoomAnimator: animator)
+
+	self.transitionContext = nil
+})
+```
+
+#### Confroming to `UIViewControllerInteractiveTransitioning`
+
+The `ZoomDismissalInteractionController` must conform to `UIViewControllerInteractiveTransitioning` in order to respond to interactive transition gestures. It requires just one method, `startInteractiveTransition(transitionContext:)`.
+
+**TODO: return to this when I know what it does...**
+
+```swift
+func startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning) {
+        
+	self.transitionContext = transitionContext
+	 
+	let containerView = transitionContext.containerView
+	 
+	guard
+		let animator = self.animator as? ZoomAnimator,
+		let fromVC = transitionContext.viewController(forKey: .from),
+		let fromReferenceImageView = animator.fromDelegate?.referenceImageView(for: animator),
+		let fromReferenceImageViewFrame = animator.fromDelegate?.referenceImageViewFrameInTransitioningView(for: animator),
+		let toVC = transitionContext.viewController(forKey: .to),
+		let toReferenceImageViewFrame = animator.toDelegate?.referenceImageViewFrameInTransitioningView(for: animator) else {
+			return
+	}
+        
+	animator.fromDelegate?.transitionWillStartWith(zoomAnimator: animator)
+	animator.toDelegate?.transitionWillStartWith(zoomAnimator: animator)
+	
+	self.fromReferenceImageViewFrame = fromReferenceImageViewFrame
+	self.toReferenceImageViewFrame = toReferenceImageViewFrame
+	
+	let referenceImage = fromReferenceImageView.image!
+	
+	containerView.addSubview(toVC.view)
+	containerView.addSubview(fromVC.view)
+	
+	if animator.transitionImageView == nil {
+		let transitionImageView = UIImageView(image: referenceImage)
+		transitionImageView.contentMode = .scaleAspectFill
+		transitionImageView.clipsToBounds = true
+		transitionImageView.frame = fromReferenceImageViewFrame
+		animator.transitionImageView = transitionImageView
+		containerView.addSubview(transitionImageView)
+	}
+}
+```
+
+### Add option of interactive transition to `ZoomTransitionController`
+
+An interactive controller object and whether the transition is interactive are added as stored properties to `ZoomTransitionController`. The intiailization of the interaction controller is also added to the `init()` method.
+
+```swift
+// for interactive transitions
+let interactionController: ZoomDismissalInteractionController
+var isInteractive: Bool = false
+```
+
+To make responding the gestures a bit easier, a wrapper was added in `ZoomTransitionController`.
+
+```swift
+func didPanWith(gestureRecognizer: UIPanGestureRecognizer) {
+	interactionController.didPanWith(gestureRecognizer: gestureRecognizer)
+}
+```
+The next two methods added to the transition and navigation delegate extensions of `ZoomTransitionController` indicate whether the interactive transition should be used or not.
+
+To make the transition interactive, one method must be included for the `UIViewControllerTransitioningDelegate`.
+
+```swift
+func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+	if !self.isInteractive {
+		return nil
+	}
+	self.interactionController.animator = animator
+	return self.interactionController
+}
+```
+
+Also, a method must be added for `UINavigationControllerDelegate`.
+
+```swift
+func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+	if !self.isInteractive {
+		return nil
+	}
+	self.interactionController.animator = animator
+	return self.interactionController
+}
+```
+
+### Recognizing the pan gesture in `PagingCollectionViewController`
+
+A pan gesture recognizer was added to `PagingCollectionViewController` in `viewDidLoad()`.
+
+```swift
+let panGesture = UIPanGestureRecognizer(target: self, action: #selector(userDidPanWith(gestureRecognizer:)))
+view.addGestureRecognizer(panGesture)
+```
+The `userDidPanWith(gestureRecognizer:)` method was fairly simple, just responding to the start and end of the gesure by switching on or off the interactive transition. Otherwise (in `default`), the pan gesture was just passed to the transition controller.
+
+```swift
+@objc func userDidPanWith(gestureRecognizer: UIPanGestureRecognizer) {
+	switch gestureRecognizer.state {
+	case .began:
+		transitionController.isInteractive = true
+		let _ = navigationController?.popViewController(animated: true)
+	case .ended:
+		if transitionController.isInteractive {
+			transitionController.isInteractive = false
+			transitionController.didPanWith(gestureRecognizer: gestureRecognizer)
+		}
+	default:
+		if transitionController.isInteractive {
+			transitionController.didPanWith(gestureRecognizer: gestureRecognizer)
+		}
+	}
+}
+```
+
+### Finished!
+
+<img src="progress_screenshots/zoom_animation_interactive_HD.gif" width="300"/>
+
+
+TODO:
+
+- [ ] figure out what `startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning)` does and add explanation
+- [ ] fragment `ZoomAnimator` code to show the relevant code within the steps instead of one big chunk
+- [ ] edit README (move all to past-tense)

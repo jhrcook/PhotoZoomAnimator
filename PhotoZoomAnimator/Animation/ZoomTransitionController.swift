@@ -15,12 +15,13 @@ class ZoomTransitionController: NSObject {
     
     let animator: ZoomAnimator
 
-    // NOT YET USED //
-    // let interactionController: ZoomDismissalInteractionController
-    // var isInteractive: Bool = false
+    // for interactive transitions
+     let interactionController: ZoomDismissalInteractionController
+     var isInteractive: Bool = false
     
     override init() {
         animator = ZoomAnimator()
+        interactionController = ZoomDismissalInteractionController()
         super.init()
     }
 }
@@ -42,6 +43,17 @@ extension ZoomTransitionController: UIViewControllerTransitioningDelegate {
         self.animator.fromDelegate = self.toDelegate
         self.animator.toDelegate = tmp
         return self.animator
+    }
+    
+    // decide whether or not to use interactive controller
+    // the interactive controller uses the same animator, though
+    func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+        if !self.isInteractive {
+            return nil
+        }
+        
+        self.interactionController.animator = animator
+        return self.interactionController
     }
     
 }
@@ -68,4 +80,24 @@ extension ZoomTransitionController: UINavigationControllerDelegate {
         return self.animator
     }
     
+    
+    // whether or not to use the interactive controller
+    // the interactive controller uses the same animator, though
+    func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+        
+        if !self.isInteractive {
+            return nil
+        }
+        
+        self.interactionController.animator = animator
+        return self.interactionController
+    }
+    
+}
+
+
+extension ZoomTransitionController {
+    func didPanWith(gestureRecognizer: UIPanGestureRecognizer) {
+        interactionController.didPanWith(gestureRecognizer: gestureRecognizer)
+    }
 }

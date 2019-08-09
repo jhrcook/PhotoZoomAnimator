@@ -43,8 +43,10 @@ class PagingCollectionViewController: UICollectionViewController {
         setupCollectionView()
         currentIndex = startingIndex
         
-        print("paging view controller did load")
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(userDidPanWith(gestureRecognizer:)))
+        view.addGestureRecognizer(panGesture)
     }
+    
     
     func setupCollectionView() {
         collectionView.showsHorizontalScrollIndicator = false
@@ -52,7 +54,7 @@ class PagingCollectionViewController: UICollectionViewController {
         collectionView.isPagingEnabled = true
         collectionView.contentInsetAdjustmentBehavior = .never
         collectionView.alwaysBounceHorizontal = true
-        collectionView.alwaysBounceVertical = true
+        collectionView.alwaysBounceVertical = false
         
         collectionView.contentSize = CGSize(width: view.frame.width * CGFloat(images.count), height: 1.0)
         
@@ -60,7 +62,6 @@ class PagingCollectionViewController: UICollectionViewController {
         collectionView.dataSource = self
         
         // set initial index at `startingIndex`
-        print("scrolling to \(startingIndex)")
         collectionView.scrollToItem(at: IndexPath(item: startingIndex, section: 0), at: .right, animated: false)
     }
 
@@ -76,7 +77,6 @@ class PagingCollectionViewController: UICollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PagingCollectionViewCell
     
-        print("making cell \(indexPath.item) for paging view collection")
         cell.image = images[indexPath.item]
         
         cell.imageView.isHidden = hideCellImageViews
@@ -85,7 +85,7 @@ class PagingCollectionViewController: UICollectionViewController {
     }
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print("---\npaging collection view did scroll\n---")
+        print("did scroll: PAGE")
         var imageNumber = Float((scrollView.contentOffset.x - 0.5 * view.frame.width) / view.frame.width)
         imageNumber.round(.up)
         currentIndex = Int(imageNumber)
@@ -132,7 +132,6 @@ extension PagingCollectionViewController: ZoomAnimatorDelegate {
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
         if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
-            print("paging collection view is sending index \(currentIndex)")
             return cell.imageView
         }
         return nil
@@ -140,11 +139,31 @@ extension PagingCollectionViewController: ZoomAnimatorDelegate {
     
     func referenceImageViewFrameInTransitioningView(for zoomAnimator: ZoomAnimator) -> CGRect? {
         if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
-            print("paging view controller sending image frame")
             return cell.scrollView.convert(cell.imageView.frame, to: view)
         }
         return nil
     }
     
     
+}
+
+
+// handle pan gesture
+extension PagingCollectionViewController {
+    @objc func userDidPanWith(gestureRecognizer: UIPanGestureRecognizer) {
+        switch gestureRecognizer.state {
+        case .began:
+            transitionController.isInteractive = true
+            let _ = navigationController?.popViewController(animated: true)
+        case .ended:
+            if transitionController.isInteractive {
+                transitionController.isInteractive = false
+                transitionController.didPanWith(gestureRecognizer: gestureRecognizer)
+            }
+        default:
+            if transitionController.isInteractive {
+                transitionController.didPanWith(gestureRecognizer: gestureRecognizer)
+            }
+        }
+    }
 }
