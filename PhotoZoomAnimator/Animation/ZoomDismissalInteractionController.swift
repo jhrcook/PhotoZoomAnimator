@@ -83,7 +83,6 @@ class ZoomDismissalInteractionController: NSObject {
             
             // STEP 8 //
             if velocityCheck {
-                print("cancelling interactive transition")
                 // cancel transition
                 UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: [], animations: {
                     transitionImageView.frame = fromReferenceImageViewFrame
@@ -109,7 +108,6 @@ class ZoomDismissalInteractionController: NSObject {
             
             
             // STEP 9 //
-            print("finishing interactive transition")
             UIView.animateKeyframes(withDuration: 0.25, delay: 0, options: [], animations: {
                 fromVC.view.alpha = 0.0
                 transitionImageView.frame = toReferenceImageViewFrame
