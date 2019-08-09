@@ -102,7 +102,7 @@ extension PagingCollectionViewCell {
 extension PagingCollectionViewCell: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print("---\npaging cell scrolled\n---")
+        print("did scroll: CELL")
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
