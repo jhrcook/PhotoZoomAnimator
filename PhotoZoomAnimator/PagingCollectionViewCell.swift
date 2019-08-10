@@ -101,9 +101,9 @@ extension PagingCollectionViewCell {
 // extension to handle zooming
 extension PagingCollectionViewCell: UIScrollViewDelegate {
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print("did scroll: CELL")
-    }
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        
+//    }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         let imageViewSize = imageView.frame.size

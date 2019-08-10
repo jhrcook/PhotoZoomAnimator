@@ -10,7 +10,6 @@ import UIKit
 
 private let reuseIdentifier = "pagingImageCell"
 
-// UPDATE //
 protocol PagingCollectionViewControllerDelegate {
     func containerViewController(_ containerViewController: PagingCollectionViewController, indexDidChangeTo currentIndex: Int)
 }
@@ -85,7 +84,6 @@ class PagingCollectionViewController: UICollectionViewController {
     }
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print("did scroll: PAGE")
         var imageNumber = Float((scrollView.contentOffset.x - 0.5 * view.frame.width) / view.frame.width)
         imageNumber.round(.up)
         currentIndex = Int(imageNumber)
