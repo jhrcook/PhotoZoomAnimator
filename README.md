@@ -427,11 +427,13 @@ func transitionWillStartWith(zoomAnimator: ZoomAnimator) {
 func transitionDidEndWith(zoomAnimator: ZoomAnimator) {
 	// add code here to be run just after the transition animation
 	hideCellImageViews = false
-	collectionView.reloadItems(at: [IndexPath(item: currentIndex, section: 0)])
+	if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
+		cell.imageView.isHidden = hideCellImageViews
+	}
 }
 ```
 
-The final line in `transitionDidEndWith(zoomAnimator:)` just reloads the current cell with `hideCellImageViews` set to `false`. The new stored property of `PagingCollectionViewController`, `hideCellImageViews: Bool`, takes effect during the creation of the collection view's cells.
+The final line in `transitionDidEndWith(zoomAnimator:)` just makes the image view of the current cell to no longer hidden. The new stored property of `PagingCollectionViewController`, `hideCellImageViews: Bool`, takes effect during the creation of the collection view's cells.
 
 ```swift
 override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

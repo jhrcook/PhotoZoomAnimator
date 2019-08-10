@@ -127,7 +127,8 @@ extension PagingCollectionViewController: ZoomAnimatorDelegate {
         hideCellImageViews = false
         if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
             cell.imageView.isHidden = hideCellImageViews
-        }    }
+        }
+    }
     
     func referenceImageView(for zoomAnimator: ZoomAnimator) -> UIImageView? {
         if let cell = collectionView.cellForItem(at: IndexPath(item: currentIndex, section: 0)) as? PagingCollectionViewCell {
